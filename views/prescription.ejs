@@ -29,17 +29,32 @@
             <p>Prescription Serial Number: <%= input.prescriptionNumber %> </p>
             <p>Date: <%=day%>/<%= month %>/<%=year%></p>
         </div>
-        <p>Name: <%= input.firstName %> <%= input.lastName %></p>
-        <p>Address: <br/> <%= input.addressOne %>, <br/> <%= input.addressTwo %>, <br/> <%= input.city %></p>
+        <p>Name: <%= input.fullName %></p>
+        <p>Address: <pre><%= input.address %></pre> </p>
         <p>Contact Number: <%= input.contactNumber %></p>
         <div class="space">
             <p>Sex: <%= input.gender %></p>
             <p>Age: <%= input.age %>yrs</p>
             <p>Weight: <%= input.weight %>kg</p>
         </div>
+        <% if(input.disease=="Other") { %>
+            <h3><%= input.otherDisease %></h3>
+            <% }else{ %>
         <h3><%= input.disease %></h3>
+        <% } %>
         <p>Rx</p>
         <div class="meds">
+            <% if(input.disease=="Other") { %>
+                <% let medList = Array.isArray(customMedicines) ? customMedicines : [customMedicines]; %>
+            <% if (medList.length > 0 && medList[0]) { %>
+                <ol>
+                    <% medList.forEach((med) => { %>
+                        <li><%= med %></li>
+                    <% }) %>
+                </ol>
+            <% } else { %>
+                <p>No medicines prescribed.</p>
+                <% }}else{ %>
             <% let medList = Array.isArray(medicines) ? medicines : [medicines]; %>
             <% if (medList.length > 0 && medList[0]) { %>
                 <ol>
@@ -49,9 +64,9 @@
                 </ol>
             <% } else { %>
                 <p>No medicines prescribed.</p>
-            <% } %>
+            <% }} %>
         </div>
-        <p>Additional Notes:</p>
+        <p>Additional Notes: <pre><%= input.notes %></pre></p>
         <div class="footer">
             <div class="inFooter">
                 <div class="sign">
@@ -64,6 +79,9 @@
                 </div>
             </div>
         </div>
+        <form action="/" method="post">
+            <button class="redirect" type="submit">New Patient</button>
+        </form>
     </div>
     </div>
 </body>

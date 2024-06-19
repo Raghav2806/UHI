@@ -1,6 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
-import { createUser } from "./repositries/userRepository.js";
+import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/userRepository.js";
 import { readAllMed } from "./repositries/medRepository.js";
 import { connectDB } from "./config/db.js";
 import * as dotenv from "dotenv";
@@ -26,22 +26,26 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/prescription", async(req, res) => {
-    const data1 = req.body;     
-    const date1=new Date();
-    const date2=date1.toISOString();
-    const reqDate=date2;
-    data1.currentDate=reqDate;
-    const month=reqDate.slice(5,7);
-    const day=reqDate.slice(8,10);
-    const hour=reqDate.slice(11,13);
-    const minute=reqDate.slice(14,16)
-    data1.prescriptionNumber=month+day+hour+minute;
+  const data1 = req.body;
+  console.log(req.body);
+  data1.currentDate=getIsoDate();
+  data1.prescriptionNumber=getPrescriptionNumber();
     const medicines=req.body.medicines;
-    createUser(data1);
+    const customMeds=req.body.customMedicines;
+    if (customMeds) {
+      customMeds.pop();
+    }
+    console.log(customMeds);
+    //createUser(data1);
     res.render("prescription.ejs", {
         input: data1,
         medicines: medicines,
+        customMedicines: customMeds,
     });
+})
+
+app.post("/", async(req, res) => {
+  res.redirect("/");
 })
 
 const PORT = process.env.PORT || 5000;

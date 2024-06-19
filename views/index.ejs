@@ -10,25 +10,13 @@
 <body>
   <div class="contain">
     <form action="/prescription" class="row g-3 container my-4" method="post">
-      <div class="col-md-6 form-floating">
-        <input type="text" class="form-control" id="firstNameInput" placeholder="First Name" name="firstName" />
-        <label for="firstNameInput">First Name</label>
+      <div class="col-md-12 form-floating">
+        <input type="text" class="form-control" id="firstNameInput" placeholder="Full Name" name="fullName" />
+        <label for="firstNameInput">Full Name</label>
       </div>
-      <div class="col-md-6 form-floating">
-        <input type="text" class="form-control" id="lastNameInput" placeholder="Last Name" name="lastName" />
-        <label for="lastNameInput">Last Name</label>
-      </div>
-      <div class="col-12 form-floating">
-        <input type="text" class="form-control" id="addressOneInput" placeholder="1234 Main St" name="addressOne" />
-        <label for="addressOneInput" class="form-label">Address</label>
-      </div>
-      <div class="col-12 form-floating">
-        <input type="text" class="form-control" id="addressTwoInput" placeholder="Apartment, studio, or floor" name="addressTwo" />
-        <label for="addressTwoInput" class="form-label">Address 2</label>
-      </div>
-      <div class="col-12 form-floating">
-        <input type="text" class="form-control" id="cityInput" placeholder="City" name="city" />
-        <label for="cityInput" class="form-label">City</label>
+      <div class="form-floating">
+        <textarea class="form-control" placeholder="Address" id="floatingTextarea" name="address" rows="5" style="height: 100px;"></textarea>
+        <label for="floatingTextarea">Address</label>
       </div>
       <div class="col-12 form-floating">
         <input type="text" class="form-control" id="contactNumberInput" placeholder="Contact Number" name="contactNumber" />
@@ -66,6 +54,10 @@
             <!-- Other disease and medicine inputs will be dynamically generated here -->
           </div>
         </div>
+      </div>
+      <div class="form-floating">
+        <textarea class="form-control" placeholder="Notes" id="floatingTextarea" name="notes" rows="100" style="height: 150px;"></textarea>
+        <label for="floatingTextarea">Additional Notes</label>  
       </div>
       <input class="btn btn-primary" type="submit" value="Submit">
     </form>
