@@ -6,12 +6,12 @@
 }
 
 /* prescription.ejs */
-.outerContainer {
+.prescription {
     display: flex;
     justify-content: center;
     align-items: center;
 } 
-.innerContainer {
+.prescription-container A4 portrait sheet padding-10mm {
     display: flex;
     justify-content: center;
     flex-direction: column;
