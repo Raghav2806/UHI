@@ -30,18 +30,18 @@ app.post("/prescription", async(req, res) => {
   console.log(req.body);
   data1.currentDate=getIsoDate();
   data1.prescriptionNumber=getPrescriptionNumber();
-    const medicines=req.body.medicines;
-    const customMeds=req.body.customMedicines;
-    if (customMeds) {
-      customMeds.pop();
-    }
-    console.log(customMeds);
-    createUser(data1);
-    res.render("prescription.ejs", {
-        input: data1,
-        medicines: medicines,
-        customMedicines: customMeds,
-    });
+  const medicines=req.body.medicines;
+  const customMeds=req.body.customMedicines;
+  if (customMeds) {
+    customMeds.pop();
+  }
+  console.log(customMeds);
+  createUser(data1);
+  res.render("prescription.ejs", {
+    input: data1,
+    medicines: medicines,
+    customMedicines: customMeds,
+  });
 })
 
 app.post("/", async(req, res) => {
