@@ -61,10 +61,16 @@
             <!-- Checkbox will be dynamically generated here -->
           </div>
         </div>
+        <div class="form-group row mt-3" id="otherDiseaseContainer" style="display:none;">
+          <div class="col-md-12" id="otherDiseaseInputContainer">
+            <!-- Other disease and medicine inputs will be dynamically generated here -->
+          </div>
+        </div>
       </div>
       <input class="btn btn-primary" type="submit" value="Submit">
     </form>
   </div>
+
   <script>
     let inputData = {};
     <% if (input1) { %>
@@ -82,42 +88,104 @@
             option.textContent = complaint;
             dropdown.appendChild(option);
         }
+        // Add the 'Other' option
+        const otherOption = document.createElement('option');
+        otherOption.value = 'Other';
+        otherOption.textContent = 'Other';
+        dropdown.appendChild(otherOption);
     }
 
     function updateCheckboxes() {
         const dropdown = document.getElementById('dynamicDropdown');
         const checkboxContainer = document.getElementById('dynamicCheckboxContainer');
+        const otherDiseaseContainer = document.getElementById('otherDiseaseContainer');
+        const otherDiseaseInputContainer = document.getElementById('otherDiseaseInputContainer');
         checkboxContainer.innerHTML = ''; // Clear the container first
+        otherDiseaseInputContainer.innerHTML = ''; // Clear the container first
 
         const selectedOption = dropdown.options[dropdown.selectedIndex].value;
-        if (selectedOption && inputData[selectedOption]) {
-            const medicines = inputData[selectedOption];
-            medicines.forEach(medicine => {
-                const checkboxElement = document.createElement('div');
-                checkboxElement.classList.add('form-check');
+        if (selectedOption === 'Other') {
+            otherDiseaseContainer.style.display = 'flex';
+            const inputContainer = document.createElement('div');
+            inputContainer.className = 'row';
 
-                const inputElement = document.createElement('input');
-                inputElement.type = 'checkbox';
-                inputElement.id = `medicine-${medicine}`;
-                inputElement.name = 'medicines';
-                inputElement.value = medicine;
-                inputElement.classList.add('form-check-input');
+            const diseaseInputContainer = document.createElement('div');
+            diseaseInputContainer.className = 'col-md-6';
 
-                const labelElement = document.createElement('label');
-                labelElement.htmlFor = `medicine-${medicine}`;
-                labelElement.textContent = medicine;
-                labelElement.classList.add('form-check-label');
+            const newDiseaseInput = document.createElement('input');
+            newDiseaseInput.type = 'text';
+            newDiseaseInput.className = 'form-control';
+            newDiseaseInput.placeholder = 'Enter your disease';
+            newDiseaseInput.name = 'otherDisease';
+            newDiseaseInput.addEventListener('input', addNewMedicineInput);
+            diseaseInputContainer.appendChild(newDiseaseInput);
 
-                checkboxElement.appendChild(inputElement);
-                checkboxElement.appendChild(labelElement);
-                checkboxContainer.appendChild(checkboxElement);
-            });
+            const medicineInputContainer = document.createElement('div');
+            medicineInputContainer.className = 'col-md-6';
+            medicineInputContainer.id = 'medicineInputContainer';
+
+            inputContainer.appendChild(diseaseInputContainer);
+            inputContainer.appendChild(medicineInputContainer);
+
+            otherDiseaseInputContainer.appendChild(inputContainer);
+        } else {
+            otherDiseaseContainer.style.display = 'none';
+            if (selectedOption && inputData[selectedOption]) {
+                const medicines = inputData[selectedOption];
+                medicines.forEach(medicine => {
+                    const checkboxElement = document.createElement('div');
+                    checkboxElement.classList.add('form-check');
+
+                    const inputElement = document.createElement('input');
+                    inputElement.type = 'checkbox';
+                    inputElement.id = `medicine-${medicine}`;
+                    inputElement.name = 'medicines';
+                    inputElement.value = medicine;
+                    inputElement.classList.add('form-check-input');
+
+                    const labelElement = document.createElement('label');
+                    labelElement.htmlFor = `medicine-${medicine}`;
+                    labelElement.textContent = medicine;
+                    labelElement.classList.add('form-check-label');
+
+                    checkboxElement.appendChild(inputElement);
+                    checkboxElement.appendChild(labelElement);
+                    checkboxContainer.appendChild(checkboxElement);
+                });
+            }
         }
     }
 
-    window.onload = populateDropdown;
-    const dropdown = document.getElementById('dynamicDropdown');
-    dropdown.addEventListener('change', updateCheckboxes);
-  </script>
+    function addNewMedicineInput(event) {
+        const medicineInputContainer = document.getElementById('medicineInputContainer');
+        const lastInput = medicineInputContainer.lastElementChild;
+
+        if (lastInput && lastInput.value.trim() !== '') {
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.className = 'form-control mt-2';
+            newInput.placeholder = 'Enter your medicine';
+            newInput.name = 'customMedicines[]';
+            newInput.addEventListener('input', addNewMedicineInput);
+
+            medicineInputContainer.appendChild(newInput);
+        } else if (!lastInput) {
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.className = 'form-control';
+            newInput.placeholder = 'Enter your medicine';
+            newInput.name = 'customMedicines[]';
+            newInput.addEventListener('input', addNewMedicineInput);
+
+            medicineInputContainer.appendChild(newInput);
+        }
+    }
+
+    window.onload = function() {
+        populateDropdown();
+        const dropdown = document.getElementById('dynamicDropdown');
+        dropdown.addEventListener('change', updateCheckboxes);
+    };
+</script>
 </body>
 </html>

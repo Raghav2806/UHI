@@ -15,7 +15,6 @@ app.use(express.static("public"));
 app.get("/", async (req, res) => {
   try {
     const dt2a = await readAllMed();
-    console.log(dt2a);
     res.render("index.ejs", {
       input1: dt2a,
     });
