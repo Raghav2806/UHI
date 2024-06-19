@@ -1,6 +1,6 @@
 import User from '../models/userModel.js'
 
-export async function createUser (userData) {
+export async function createUser (userData, userData1) {
     const user=await User.create({
         fullName:userData["fullName"],
         address:userData["address"], 
@@ -8,7 +8,9 @@ export async function createUser (userData) {
         age:userData["age"], gender:userData["gender"], 
         weight:userData["weight"],
         currentDate:userData["currentDate"],
-        prescriptionNumber:userData["prescriptionNumber"]
+        prescriptionNumber:userData["prescriptionNumber"],
+        diagnosedDisease:userData["disease"],
+        diagnosedMeds:userData1,
     });
     console.log(user);
 }

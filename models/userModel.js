@@ -9,6 +9,8 @@ const userSchema=new mongoose.Schema({
     weight: Number,
     currentDate:String,
     prescriptionNumber:String,
+    diagnosedDisease:String,
+    diagnosedMeds:[String],
 })
 
 const User=mongoose.model("users", userSchema)
