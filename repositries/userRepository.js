@@ -1,6 +1,20 @@
 import User from '../models/userModel.js'
 
 export async function createUser (userData, userData1) {
+    if(userData.disease === "Other") {
+        const user=await User.create({
+            fullName:userData["fullName"],
+            address:userData["address"], 
+            contactNumber:userData["contactNumber"], 
+            age:userData["age"], gender:userData["gender"], 
+            weight:userData["weight"],
+            currentDate:userData["currentDate"],
+            prescriptionNumber:userData["prescriptionNumber"],
+            diagnosedDisease:userData["otherDisease"],
+            diagnosedMeds:userData1,
+        });
+        console.log(user);
+    } else {
     const user=await User.create({
         fullName:userData["fullName"],
         address:userData["address"], 
@@ -13,6 +27,7 @@ export async function createUser (userData, userData1) {
         diagnosedMeds:userData1,
     });
     console.log(user);
+}
 }
 
 export function getIsoDate () {

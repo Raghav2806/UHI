@@ -18,3 +18,11 @@ export async function readAllMed() {
         console.error('Error fetching all med data:', err);
     }
 }
+
+export async function addMeds (disease,customMeds) {
+        const meds = await Med.create({
+            primaryComplaint: disease,
+            medicines: customMeds,
+        })
+        console.log(meds);
+}

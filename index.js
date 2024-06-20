@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/userRepository.js";
-import { readAllMed } from "./repositries/medRepository.js";
+import { readAllMed , addMeds} from "./repositries/medRepository.js";
 import { connectDB } from "./config/db.js";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -34,9 +34,11 @@ app.post("/prescription", async(req, res) => {
   const customMeds=req.body.customMedicines;
   if (customMeds) {
     customMeds.pop();
+    createUser(data1,customMeds);
+    addMeds(data1.otherDisease,customMeds);
+  } else {
+    createUser(data1,medicines);
   }
-  console.log(customMeds);
-  createUser(data1,medicines);
   res.render("prescription.ejs", {
     input: data1,
     medicines: medicines,
