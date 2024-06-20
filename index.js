@@ -36,7 +36,7 @@ app.post("/prescription", async(req, res) => {
     customMeds.pop();
   }
   console.log(customMeds);
-  // createUser(data1,medicines);
+  createUser(data1,medicines);
   res.render("prescription.ejs", {
     input: data1,
     medicines: medicines,
