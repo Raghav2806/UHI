@@ -3,6 +3,8 @@ import User from '../models/userModel.js'
 export async function createUser (userData, meds) {
     if(userData.disease === "Other") {
         const user=await User.create({
+            username:userData["username"],
+            password:userData["password"],
             fullName:userData["fullName"],
             address:userData["address"], 
             contactNumber:userData["contactNumber"], 
@@ -16,6 +18,8 @@ export async function createUser (userData, meds) {
         console.log(user);
     } else {
     const user=await User.create({
+        username:userData["username"],
+        password:userData["password"],
         fullName:userData["fullName"],
         address:userData["address"], 
         contactNumber:userData["contactNumber"], 
