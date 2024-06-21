@@ -1,183 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
-  <link rel="stylesheet" href="/styles/main.css" />
-  <title>Form</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles/index.css" />
 </head>
 <body>
-  <div class="contain">
-    <form action="/prescription" class="row g-3 container my-4" method="post">
-      <div class="col-md-12 form-floating">
-        <input type="text" class="form-control" id="firstNameInput" placeholder="Full Name" name="fullName" />
-        <label for="firstNameInput">Full Name</label>
-      </div>
-      <div class="form-floating">
-        <textarea class="form-control" placeholder="Address" id="floatingTextarea" name="address" rows="5" style="height: 100px;"></textarea>
-        <label for="floatingTextarea">Address</label>
-      </div>
-      <div class="col-12 form-floating">
-        <input type="text" class="form-control" id="contactNumberInput" placeholder="Contact Number" name="contactNumber" />
-        <label for="contactNumberInput" class="form-label">Contact Number</label>
-      </div>
-      <div class="col-md-4 form-floating">
-        <input type="number" class="form-control" id="ageInput" placeholder="Age" name="age">
-        <label for="ageInput" class="form-label">Age</label>
-      </div>
-      <div class="col-md-4">
-        <select id="genderInput" class="form-select py-3" name="gender">
-          <option selected>Choose your gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-      <div class="col-md-4 form-floating">
-        <input type="number" class="form-control" id="weightInput" placeholder="Weight" name="weight">
-        <label for="weightInput" class="form-label">Weight</label>
-      </div>
-      <div class="col-md-8">
-        <div class="form-group row">
-          <div class="col-md-6">
-            <select id="dynamicDropdown" class="form-select py-3" name="disease">
-              <option selected>Choose an option</option>
-            </select>
-          </div>
-          <div class="col-md-6" id="dynamicCheckboxContainer" name="medicines">
-            <!-- Checkbox will be dynamically generated here -->
-          </div>
-        </div>
-        <div class="form-group row mt-3" id="otherDiseaseContainer" style="display:none;">
-          <div class="col-md-12" id="otherDiseaseInputContainer">
-            <!-- Other disease and medicine inputs will be dynamically generated here -->
-          </div>
-        </div>
-      </div>
-      <div class="form-floating">
-        <textarea class="form-control" placeholder="Notes" id="floatingTextarea" name="notes" rows="100" style="height: 150px;"></textarea>
-        <label for="floatingTextarea">Additional Notes</label>  
-      </div>
-      <input class="btn btn-primary" type="submit" value="Submit">
-    </form>
-  </div>
-
-  <script>
-    let inputData = {};
-    <% if (input1) { %>
-        inputData = <%- JSON.stringify(input1) %>;
-    <% } %>
-    console.log('inputData:', inputData);
-
-    function populateDropdown() {
-        const dropdown = document.getElementById('dynamicDropdown');
-        const complaints = Object.keys(inputData);
-
-        for (const complaint of complaints) {
-            const option = document.createElement('option');
-            option.value = complaint;
-            option.textContent = complaint;
-            dropdown.appendChild(option);
-        }
-        // Add the 'Other' option
-        const otherOption = document.createElement('option');
-        otherOption.value = 'Other';
-        otherOption.textContent = 'Other';
-        dropdown.appendChild(otherOption);
-    }
-
-    function updateCheckboxes() {
-        const dropdown = document.getElementById('dynamicDropdown');
-        const checkboxContainer = document.getElementById('dynamicCheckboxContainer');
-        const otherDiseaseContainer = document.getElementById('otherDiseaseContainer');
-        const otherDiseaseInputContainer = document.getElementById('otherDiseaseInputContainer');
-        checkboxContainer.innerHTML = ''; // Clear the container first
-        otherDiseaseInputContainer.innerHTML = ''; // Clear the container first
-
-        const selectedOption = dropdown.options[dropdown.selectedIndex].value;
-        if (selectedOption === 'Other') {
-            otherDiseaseContainer.style.display = 'flex';
-            const inputContainer = document.createElement('div');
-            inputContainer.className = 'row';
-
-            const diseaseInputContainer = document.createElement('div');
-            diseaseInputContainer.className = 'col-md-6';
-
-            const newDiseaseInput = document.createElement('input');
-            newDiseaseInput.type = 'text';
-            newDiseaseInput.className = 'form-control';
-            newDiseaseInput.placeholder = 'Enter your disease';
-            newDiseaseInput.name = 'otherDisease';
-            newDiseaseInput.addEventListener('input', addNewMedicineInput);
-            diseaseInputContainer.appendChild(newDiseaseInput);
-
-            const medicineInputContainer = document.createElement('div');
-            medicineInputContainer.className = 'col-md-6';
-            medicineInputContainer.id = 'medicineInputContainer';
-
-            inputContainer.appendChild(diseaseInputContainer);
-            inputContainer.appendChild(medicineInputContainer);
-
-            otherDiseaseInputContainer.appendChild(inputContainer);
-        } else {
-            otherDiseaseContainer.style.display = 'none';
-            if (selectedOption && inputData[selectedOption]) {
-                const medicines = inputData[selectedOption];
-                medicines.forEach(medicine => {
-                    const checkboxElement = document.createElement('div');
-                    checkboxElement.classList.add('form-check');
-
-                    const inputElement = document.createElement('input');
-                    inputElement.type = 'checkbox';
-                    inputElement.id = `medicine-${medicine}`;
-                    inputElement.name = 'medicines';
-                    inputElement.value = medicine;
-                    inputElement.classList.add('form-check-input');
-
-                    const labelElement = document.createElement('label');
-                    labelElement.htmlFor = `medicine-${medicine}`;
-                    labelElement.textContent = medicine;
-                    labelElement.classList.add('form-check-label');
-
-                    checkboxElement.appendChild(inputElement);
-                    checkboxElement.appendChild(labelElement);
-                    checkboxContainer.appendChild(checkboxElement);
-                });
-            }
-        }
-    }
-
-    function addNewMedicineInput(event) {
-        const medicineInputContainer = document.getElementById('medicineInputContainer');
-        const lastInput = medicineInputContainer.lastElementChild;
-
-        if (lastInput && lastInput.value.trim() !== '') {
-            const newInput = document.createElement('input');
-            newInput.type = 'text';
-            newInput.className = 'form-control mt-2';
-            newInput.placeholder = 'Enter your medicine';
-            newInput.name = 'customMedicines[]';
-            newInput.addEventListener('input', addNewMedicineInput);
-
-            medicineInputContainer.appendChild(newInput);
-        } else if (!lastInput) {
-            const newInput = document.createElement('input');
-            newInput.type = 'text';
-            newInput.className = 'form-control';
-            newInput.placeholder = 'Enter your medicine';
-            newInput.name = 'customMedicines[]';
-            newInput.addEventListener('input', addNewMedicineInput);
-
-            medicineInputContainer.appendChild(newInput);
-        }
-    }
-
-    window.onload = function() {
-        populateDropdown();
-        const dropdown = document.getElementById('dynamicDropdown');
-        dropdown.addEventListener('change', updateCheckboxes);
-    };
-</script>
+    <div class="contain">
+        <form action="/doctor" method="post">
+            <button type="submit" class="btn btn-danger">Doctor</button>
+        </form>
+        <form action="/patient" method="post">
+            <button type="submit" class="btn btn-danger">Patient</button>
+        </form>
+    </div>
 </body>
 </html>

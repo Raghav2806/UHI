@@ -1,0 +1,26 @@
+body {
+    height: 100vh;
+    background: linear-gradient(120deg, #ff6f61, #ffd1dc);
+    animation: gradient 10s infinite;
+    background-size: 400% 400%;
+  }
+
+  .contain {
+    display: flex;
+    justify-content: center; 
+    align-items: center;
+    gap: 30px;
+    height: 100%;
+}
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
