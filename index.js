@@ -2,9 +2,11 @@ import express from "express";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/userRepository.js";
-import { readAllMed , addMeds} from "./repositries/medRepository.js";
+// import { readAllMed , addMeds} from "./repositries/medRepository.js";
 import { findDoctorByEmail } from "./services/doctorServices.js";
 import { findPatientByEmail } from "./services/patientServices.js";
+import { docDom } from "./services/doctorServices.js";
+import { domMed } from "./services/doctorServices.js";
 import { connectDB } from "./config/db.js";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -14,6 +16,7 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+let sharedConst;
 
 const saltRounds = 10;
 
@@ -33,10 +36,11 @@ app.post("/doctorForm", async (req, res) => {
     if (existingUser) {
       const storedPassword = existingUser.password;
       if(loginPassword == storedPassword) {
-        //get meds only associated to the current doc
-        const dt2a = await readAllMed();
+        const docDomain=await docDom(username);
+        const docMeds=await domMed(docDomain);
+        sharedConst=docMeds;
         res.render("doctorForm.ejs", {
-          input1: dt2a,
+          input1: docMeds,
         });
       } else {
         res.send("Incorrect Password");
@@ -53,7 +57,7 @@ app.post("/prescription", async(req, res) => {
   //get patient data by patient id and pass it to prescription
   //send doctor info as well according to the doctor using the form
   const data1 = req.body;
-  console.log(req.body);
+  console.log(data1);
   data1.currentDate=getIsoDate();
   data1.prescriptionNumber=getPrescriptionNumber();
   const medicines=req.body.medicines;
@@ -73,10 +77,8 @@ app.post("/prescription", async(req, res) => {
 })
 
 app.get("/doctorForm", async(req, res) => {
-  //get meds only associated to the current doc
-  const dt2a = await readAllMed();
   res.render("doctorForm.ejs", {
-    input1: dt2a,
+    input1: sharedConst,
   });
 })
 
