@@ -60,10 +60,10 @@ app.post("/prescription", async(req, res) => {
   const customMeds=req.body.customMedicines;
   if (customMeds) {
     customMeds.pop();
-    createUser(data1,customMeds);
+    // createUser(data1,customMeds);
     addMeds(data1.otherDisease,customMeds);
   } else {
-    createUser(data1,medicines);
+    // createUser(data1,medicines);
   }
   res.render("prescription.ejs", {
     input: data1,
@@ -94,10 +94,14 @@ app.post("/patientRegister", async(req, res) => {
 
 app.post("/patientHome", async (req, res) => {
   const userData = req.body;
+  userData.username = `${userData.contactNumber}@abc`;
+  console.log(userData.username);
+  
   try {
-    const existingUser = await findPatientByEmail(userData.username);
+    const existingUser = await findPatientByEmail(userData.contactNumber);
     if (existingUser) {
       res.send("Email already exists. Try logging in.");
+      return;
     } else {
       //Hashing
       bcrypt.hash(userData.password, saltRounds, async(err, hash) => {
@@ -106,7 +110,7 @@ app.post("/patientHome", async (req, res) => {
         } else {
         userData.password = hash;  
         createUser(userData,[]);
-        //update createUser
+        // update createUser
         res.render("patientHome.ejs");
         }
       })
@@ -114,6 +118,7 @@ app.post("/patientHome", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+  res.redirect(`/welcomeUser?username=${userData.username}&fullName=${userData.fullName}`);
 });
 
 app.post("/patientLogin", async(req, res) => {
@@ -146,6 +151,10 @@ app.post("/patientHomeLog", async (req, res) => {
   }
 });
 
+app.get('/welcomeUser', (req, res) => {
+  const { username, fullName } = req.query;
+  res.render('welcomeUser', { username, fullName });
+})
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
