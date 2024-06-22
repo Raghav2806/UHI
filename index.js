@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/userRepository.js";
 // import { readAllMed , addMeds} from "./repositries/medRepository.js";
+import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail } from "./services/doctorServices.js";
 import { findPatientByEmail } from "./services/patientServices.js";
 import { docDom } from "./services/doctorServices.js";
@@ -64,9 +65,11 @@ app.post("/prescription", async(req, res) => {
   const customMeds=req.body.customMedicines;
   if (customMeds) {
     customMeds.pop();
+    createPrescription(data1, customMeds);
     // createUser(data1,customMeds);
     addMeds(data1.otherDisease,customMeds);
   } else {
+    createPrescription(data1, medicines);
     // createUser(data1,medicines);
   }
   res.render("prescription.ejs", {
