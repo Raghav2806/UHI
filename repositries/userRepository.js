@@ -54,7 +54,7 @@ export async function updatePresUser(patient, prescriptionNumber) {
     try {
         const updatedPatient = await User.findByIdAndUpdate(
             patient._id,
-            { $push: { prescriptionsNumbers: prescriptionNumber } },
+            { $push: { prescriptionNumbers: prescriptionNumber } },
             { new: true }
         );
         return updatedPatient;
