@@ -120,8 +120,12 @@ app.post("/patientHome", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
-  res.redirect(`/welcomeUser?username=${userData.username}&fullName=${userData.fullName}`);
+  res.redirect(`/welcomeUser?username=${userData.username}&fullName=${userData.fullName}&address=${userData.address}&dob=${userData.dateOfBirth}&gender=${userData.gender}&weight=${userData.weight}&height=${userData.height}`);
 });
+
+app.get("/patientLogin", async(req, res) => {
+  res.render("patientLogin.ejs");
+})
 
 app.post("/patientLogin", async(req, res) => {
   res.render("patientLogin.ejs");
@@ -154,9 +158,9 @@ app.post("/patientHomeLog", async (req, res) => {
 });
 
 app.get('/welcomeUser', (req, res) => {
-  const { username, fullName } = req.query;
-  res.render('welcomeUser', { username, fullName });
-})
+  const { username, fullName, address, dob, gender, weight, height } = req.query;
+  res.render('welcomeUser', { username, fullName, address, dob, gender, weight, height });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
