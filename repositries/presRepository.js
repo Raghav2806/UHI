@@ -1,21 +1,21 @@
-import Prescription from "../models/presModel";
+import Prescription from "../models/presModel.js";
 
 export async function createPrescription (data, meds) {
     if(data.disease === "Other") {
         const prescription=await Prescription.create({
             prescriptionNumber:data["prescriptionNumber"],
+            patientID:data["patientID"],
             diagnosedDisease:data["otherDisease"],
             diagnosedMeds:meds,
-            additionalNotes:data["additionalNotes"],
+            additionalNotes:data["notes"],
         });
-        console.log(prescription);
     } else {
     const prescription=await Prescription.create({
         prescriptionNumber:data["prescriptionNumber"],
-        diagnosedDisease:data["otherDisease"],
+        patientID:data["patientID"],
+        diagnosedDisease:data["disease"],
         diagnosedMeds:meds,
-        additionalNotes:data["additionalNotes"],
+        additionalNotes:data["notes"],
     });
-    console.log(prescription);
 }
 }

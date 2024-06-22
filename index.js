@@ -58,7 +58,6 @@ app.post("/prescription", async(req, res) => {
   //get patient data by patient id and pass it to prescription
   //send doctor info as well according to the doctor using the form
   const data1 = req.body;
-  console.log(data1);
   data1.currentDate=getIsoDate();
   data1.prescriptionNumber=getPrescriptionNumber();
   const medicines=req.body.medicines;
