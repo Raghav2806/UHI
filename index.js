@@ -1,4 +1,5 @@
 import express from "express";
+import session from "express-session";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/userRepository.js";
@@ -15,6 +16,12 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(session({
+  secret: 'iLoveLily', // replace with a strong secret key
+  resave: false,
+  saveUninitialized: true,
+  cookie: {secure: false},// set secure to true if using HTTPS
+}));
 let sharedConst;
 
 const saltRounds = 10;
@@ -38,8 +45,10 @@ app.post("/doctorForm", async (req, res) => {
         const docDomain=await docDom(username);
         const docMeds=await domMed(docDomain);
         sharedConst=docMeds;
+        req.session.username=username;
         res.render("doctorForm.ejs", {
           input1: docMeds,
+          username: username,
         });
       } else {
         res.send("Incorrect Password");
@@ -55,20 +64,26 @@ app.post("/doctorForm", async (req, res) => {
 app.post("/prescription", async(req, res) => {
   //get patient data by patient id and pass it to prescription
   //send doctor info as well according to the doctor using the form
-  const data1 = req.body;
-  data1.currentDate=getIsoDate();
-  data1.prescriptionNumber=getPrescriptionNumber();
+  const medData = req.body;
+  const userData = await findPatientByUsername(medData.patientID);
+  const doctorUsername = req.session.username
+  const doctorData = await findDoctorByEmail(doctorUsername);
+  medData.currentDate=getIsoDate();
+  medData.prescriptionNumber=getPrescriptionNumber();
   const medicines=req.body.medicines;
   const customMeds=req.body.customMedicines;
   if (customMeds) {
     customMeds.pop();
-    createPrescription(data1, customMeds);
-    addMeds(data1.otherDisease,customMeds);
+    createPrescription(medData, customMeds);
+    addMeds(medData.otherDisease,customMeds);
   } else {
-    createPrescription(data1, medicines);
+    createPrescription(medData, medicines);
   }
+  console.log(doctorData);
   res.render("prescription.ejs", {
-    input: data1,
+    input: medData,
+    doctor: doctorData,
+    user: userData,
     medicines: medicines,
     customMedicines: customMeds,
   });
@@ -83,6 +98,15 @@ app.get("/doctorForm", async(req, res) => {
 app.post("/", async(req, res) => {
   res.redirect("/doctorForm");
 })
+
+app.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).send('Could not log out');
+    }
+    res.redirect("/");
+  });
+});
 
 app.post("/patient", async (req, res) => {
   res.render("patientLanding.ejs");

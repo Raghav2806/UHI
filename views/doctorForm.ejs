@@ -13,7 +13,7 @@
     <title>Form</title>
   </head>
   <body>
-    <div class="contain">
+    <div class="contain" style="flex-direction: column;">
       <form action="/prescription" class="row g-3 container my-4" method="post">
         <div class="col-md-12 form-floating">
           <input
@@ -66,6 +66,9 @@
           <label for="floatingTextarea">Additional Notes</label>
         </div>
         <input class="btn btn-primary" type="submit" value="Submit" />
+      </form>
+      <form action="/logout" method="post">
+        <button class="btn btn-danger" type="submit">Log Out</button>
       </form>
     </div>
 

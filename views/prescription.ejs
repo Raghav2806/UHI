@@ -36,10 +36,10 @@
     <section class="prescription-container A4 portrait sheet padding-10mm">
         <div class="header">
             <div>
-                <h2 class="name">Dr. Mukesh D. Gupta</h2>
-                <p>MD, DNB, PGDPC</p>
-                <p>Obstetrician & Gynaecologist</p>
-                <p>Reg No.: 081266</p>
+                <h2 class="name"><%= doctor.docName %></h2>
+                <p class="info"><%= doctor.docQuals %></p>
+                <p class="info"><%= doctor.specialization %></p>
+                <p class="info">Reg No.: <%= doctor.username %></p>
             </div>
             <div class="logo-contain">
                 <div class="logo"></div>
@@ -54,13 +54,13 @@
             <p>Prescription Serial Number: <%= input.prescriptionNumber %> </p>
             <p>Date: <%=day%>/<%= month %>/<%=year%></p>
         </div>
-        <p>Name: <%= input.fullName %></p>
-        <p>Address: <pre><%= input.address %></pre> </p>
-        <p>Contact Number: <%= input.contactNumber %></p>
+        <p>Name: <%= user.fullName %></p>
+        <p>Address: <pre><%= user.address %></pre> </p>
+        <p>Contact Number: <%= user.contactNumber %></p>
         <div class="space">
-            <p>Sex: <%= input.gender %></p>
-            <p>Age: <%= input.age %>yrs</p>
-            <p>Weight: <%= input.weight %>kg</p>
+            <p>Sex: <%= user.gender %></p>
+            <p>Age: <%= user.age %>yrs</p>
+            <p>Weight: <%= user.weight %>kg</p>
         </div>
         <% if(input.disease=="Other") { %>
         <h3><%= input.otherDisease %></h3>
