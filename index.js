@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
-import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/userRepository.js";
+import { createUser, getIsoDate, getPrescriptionNumber, updatePresUser , getUserDetails} from "./repositries/userRepository.js";
 import { addMeds} from "./repositries/medRepository.js";
 import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
@@ -15,7 +15,8 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-let sharedConst;
+let sharedConstMeds;
+let sharedConstUser;
 
 const saltRounds = 10;
 
@@ -29,6 +30,7 @@ app.post("/doctor", async (req, res) => {
 
 app.post("/doctorForm", async (req, res) => {
   const username = req.body.username;
+  sharedConstUser=username;
   const loginPassword = req.body.password;
   try {
     const existingUser = await findDoctorByEmail(username);
@@ -37,7 +39,7 @@ app.post("/doctorForm", async (req, res) => {
       if(loginPassword == storedPassword) {
         const docDomain=await docDom(username);
         const docMeds=await domMed(docDomain);
-        sharedConst=docMeds;
+        sharedConstMeds=docMeds;
         res.render("doctorForm.ejs", {
           input1: docMeds,
         });
@@ -56,17 +58,20 @@ app.post("/prescription", async(req, res) => {
   //get patient data by patient id and pass it to prescription
   //send doctor info as well according to the doctor using the form
   const data1 = req.body;
+  const patient=getUserDetails(data1.patientID);
   data1.currentDate=getIsoDate();
-  data1.prescriptionNumber=getPrescriptionNumber();
+  data1.prescriptionNumber=getPrescriptionNumber(sharedConstUser);
   const medicines=req.body.medicines;
   const customMeds=req.body.customMedicines;
   if (customMeds) {
     customMeds.pop();
     createPrescription(data1, customMeds);
+    //while adding custom meds check if the primaryComplaint is already there in the database, if yes then just append the medicines to the existing array
     addMeds(data1.otherDisease,customMeds);
   } else {
     createPrescription(data1, medicines);
   }
+  updatePresUser(data1.patientID, data1.prescriptionNumber);
   res.render("prescription.ejs", {
     input: data1,
     medicines: medicines,
@@ -76,7 +81,7 @@ app.post("/prescription", async(req, res) => {
 
 app.get("/doctorForm", async(req, res) => {
   res.render("doctorForm.ejs", {
-    input1: sharedConst,
+    input1: sharedConstMeds,
   });
 })
 
@@ -109,7 +114,7 @@ app.post("/patientHome", async (req, res) => {
           console.log(err);
         } else {
         userData.password = hash;  
-        createUser(userData,[]);
+        createUser(userData);
         // update createUser
         res.render("patientHome.ejs");
         }

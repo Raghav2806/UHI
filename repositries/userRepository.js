@@ -1,6 +1,6 @@
 import User from '../models/userModel.js'
 
-export async function createUser (userData, meds) {
+export async function createUser (userData) {
     if(userData.disease === "Other") {
         const user=await User.create({
             username:userData["username"],
@@ -8,12 +8,12 @@ export async function createUser (userData, meds) {
             fullName:userData["fullName"],
             address:userData["address"], 
             contactNumber:userData["contactNumber"], 
-            age:userData["age"], gender:userData["gender"], 
+            dateOfBirth:userData["dateOfBirth"],
+            gender:userData["gender"], 
             weight:userData["weight"],
-            currentDate:userData["currentDate"],
-            prescriptionNumber:userData["prescriptionNumber"],
-            diagnosedDisease:userData["otherDisease"],
-            diagnosedMeds:meds,
+            height:userData["height"],
+            registrationDate:userData["currentDate"],
+            prescriptionNumbers:[],
         });
         console.log(user);
     } else {
@@ -23,12 +23,12 @@ export async function createUser (userData, meds) {
         fullName:userData["fullName"],
         address:userData["address"], 
         contactNumber:userData["contactNumber"], 
-        age:userData["age"], gender:userData["gender"], 
+        dateOfBirth:userData["dateOfBirth"],
+        gender:userData["gender"], 
         weight:userData["weight"],
-        currentDate:userData["currentDate"],
-        prescriptionNumber:userData["prescriptionNumber"],
-        diagnosedDisease:userData["disease"],
-        diagnosedMeds:meds,
+        height:userData["height"],
+        registrationDate:userData["currentDate"],
+        prescriptionNumbers:[],
     });
     console.log(user);
 }
@@ -40,12 +40,39 @@ export function getIsoDate () {
     return date2;
 }
 
-export function getPrescriptionNumber () {
+export function getPrescriptionNumber (username) {
     const reqDate= getIsoDate();
     const month=reqDate.slice(5,7);
     const day=reqDate.slice(8,10);
     const hour=reqDate.slice(11,13);
     const minute=reqDate.slice(14,16)
-    const prescriptionNumber=month+day+hour+minute;
+    const prescriptionNumber=username+month+day+hour+minute;
     return prescriptionNumber;
+}
+
+export async function updatePresUser(patient, prescriptionNumber) {
+    try {
+        const updatedPatient = await User.findByIdAndUpdate(
+            patient._id,
+            { $push: { prescriptionsNumbers: prescriptionNumber } },
+            { new: true }
+        );
+        return updatedPatient;
+    } catch (error) {
+        console.error('Error updating patient prescription:', error);
+        throw error;
+    }
+}
+
+export async function getUserDetails(userId) {
+    try {
+        const patient = await User.findById(userId);
+        if (!patient) {
+            throw new Error('User not found');
+        }
+        return patient;
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        throw error;
+    }
 }
