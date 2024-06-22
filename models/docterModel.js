@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const doctorSchema=new mongoose.Schema({
     username:String,
     password:String,
+    docName:String,
     domain:String,
 })
 

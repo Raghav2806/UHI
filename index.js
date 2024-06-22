@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/userRepository.js";
-import { readAllMed , addMeds} from "./repositries/medRepository.js";
+// import { readAllMed , addMeds} from "./repositries/medRepository.js";
 import { findDoctorByEmail } from "./services/doctorServices.js";
 import { findPatientByEmail } from "./services/patientServices.js";
 import { docDom } from "./services/doctorServices.js";
@@ -57,7 +57,7 @@ app.post("/prescription", async(req, res) => {
   //get patient data by patient id and pass it to prescription
   //send doctor info as well according to the doctor using the form
   const data1 = req.body;
-  console.log(req.body);
+  console.log(data1);
   data1.currentDate=getIsoDate();
   data1.prescriptionNumber=getPrescriptionNumber();
   const medicines=req.body.medicines;
