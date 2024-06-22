@@ -5,7 +5,7 @@ import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/use
 import { addMeds} from "./repositries/medRepository.js";
 import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
-import { findPatientByEmail } from "./services/patientServices.js";
+import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -98,7 +98,7 @@ app.post("/patientHome", async (req, res) => {
   console.log(userData.username);
   
   try {
-    const existingUser = await findPatientByEmail(userData.contactNumber);
+    const existingUser = await findPatientByUsername(userData.username);
     if (existingUser) {
       res.send("Email already exists. Try logging in.");
       return;
@@ -132,7 +132,7 @@ app.post("/patientLogin", async(req, res) => {
 app.post("/patientHomeLog", async (req, res) => {
   const userData = req.body;
   try {
-    const existingUser = await findPatientByEmail(userData.username);
+    const existingUser = await findPatientByUsername(userData.username);
     if (existingUser) {
       const storedHashedPassword = existingUser.password;
       bcrypt.compare(userData.password,storedHashedPassword,(err, result) => {

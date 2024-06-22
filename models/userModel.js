@@ -5,7 +5,7 @@ const userSchema=new mongoose.Schema({
     password:String,
     fullName:String,
     address: String,
-    contactNumber: Number,
+    contactNumber: String,
     // dateOfBirth: {
     //     type: Date, 
     //     required: true,
