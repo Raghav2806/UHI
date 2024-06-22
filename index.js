@@ -80,7 +80,6 @@ app.post("/prescription", async(req, res) => {
     createPrescription(medData, medicines, sharedConstDocs);
   }
   updatePresUser(medData.patientID, medData.prescriptionNumber);
-  console.log(doctorData);
   res.render("prescription.ejs", {
     input: medData,
     doctor: doctorData,

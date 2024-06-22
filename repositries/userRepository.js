@@ -50,13 +50,18 @@ export function getPrescriptionNumber (username) {
     return prescriptionNumber;
 }
 
-export async function updatePresUser(patient, prescriptionNumber) {
+export async function updatePresUser(username, prescriptionNumber) {
     try {
-        const updatedPatient = await User.findByIdAndUpdate(
-            patient._id,
-            { $push: { prescriptionNumbers: prescriptionNumber } },
+        const updatedPatient = await User.findOneAndUpdate(
+            { username: username },
+            { $push: { prescriptionsNumbers: prescriptionNumber } },
             { new: true }
         );
+        
+        if (!updatedPatient) {
+            throw new Error('User not found');
+        }
+        
         return updatedPatient;
     } catch (error) {
         console.error('Error updating patient prescription:', error);
