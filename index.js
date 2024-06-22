@@ -8,6 +8,7 @@ import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
 import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
+import { getDomains } from "./services/jungle.js";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -23,7 +24,6 @@ app.use(session({
   cookie: {secure: false},// set secure to true if using HTTPS.
 }));
 let sharedConstMeds;
-let sharedConstDocs;
 
 const saltRounds = 10;
 
@@ -37,7 +37,6 @@ app.post("/doctor", async (req, res) => {
 
 app.post("/doctorForm", async (req, res) => {
   const username = req.body.username;
-  sharedConstDocs=username;
   const loginPassword = req.body.password;
   try {
     const existingUser = await findDoctorByEmail(username);
@@ -69,15 +68,15 @@ app.post("/prescription", async(req, res) => {
   const doctorUsername = req.session.username
   const doctorData = await findDoctorByEmail(doctorUsername);
   medData.currentDate=getIsoDate();
-  medData.prescriptionNumber=getPrescriptionNumber(sharedConstDocs);
+  medData.prescriptionNumber=getPrescriptionNumber(doctorUsername);
   const medicines=req.body.medicines;
   const customMeds=req.body.customMedicines;
   if (customMeds) {
     customMeds.pop();
-    createPrescription(medData, customMeds, sharedConstDocs);
+    createPrescription(medData, customMeds, doctorUsername, doctorData.domain);
     addMeds(medData.otherDisease,customMeds);
   } else {
-    createPrescription(medData, medicines, sharedConstDocs);
+    createPrescription(medData, medicines, doctorUsername, doctorData.domain);
   }
   updatePresUser(medData.patientID, medData.prescriptionNumber);
   res.render("prescription.ejs", {
@@ -159,23 +158,21 @@ app.post("/patientHomeLog", async (req, res) => {
     const existingUser = await findPatientByUsername(userData.username);
     if (existingUser) {
       const storedHashedPassword = existingUser.password;
-      bcrypt.compare(userData.password,storedHashedPassword,(err, result) => {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log(result);
-          if(result) {
-            res.render("patientHome.ejs");
-          } else {
-            res.send("Incorrect Password");
-          }
-        }
-      })
+      const result = await bcrypt.compare(userData.password, storedHashedPassword);
+      
+      if (result) {
+        const diagnosisDomains = await getDomains(userData.username);
+        console.log(diagnosisDomains);
+        res.render("patientHome.ejs");
+      } else {
+        res.send("Incorrect Password");
+      }
     } else {
       res.send("User not found");
     }
   } catch (err) {
     console.log(err);
+    res.status(500).send("An error occurred");
   }
 });
 
