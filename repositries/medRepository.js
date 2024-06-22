@@ -26,3 +26,7 @@ export async function addMeds (disease,customMeds) {
         })
         console.log(meds);
 }
+
+export async function docMeds(){
+    
+}

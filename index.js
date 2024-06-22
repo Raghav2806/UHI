@@ -5,6 +5,7 @@ import { createUser, getIsoDate, getPrescriptionNumber } from "./repositries/use
 import { readAllMed , addMeds} from "./repositries/medRepository.js";
 import { findDoctorByEmail } from "./services/doctorServices.js";
 import { findPatientByEmail } from "./services/patientServices.js";
+import { domMed } from "./repositries/doctorRepository.js";
 import { connectDB } from "./config/db.js";
 import * as dotenv from "dotenv";
 dotenv.config();
@@ -33,7 +34,7 @@ app.post("/doctorForm", async (req, res) => {
     if (existingUser) {
       const storedPassword = existingUser.password;
       if(loginPassword == storedPassword) {
-        //get meds only associated to the current doc
+        const docMeds=domMed();//Enter the parameter from the domain
         const dt2a = await readAllMed();
         res.render("doctorForm.ejs", {
           input1: dt2a,
