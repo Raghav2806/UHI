@@ -5,6 +5,7 @@ const doctorSchema=new mongoose.Schema({
     password:String,
     docName:String,
     docQuals:[String],
+    specialization: String,
     domain:String,
 })
 

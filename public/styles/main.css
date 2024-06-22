@@ -46,6 +46,11 @@
     margin-bottom: 4px;
 }
 
+.info {
+    font-size: small;
+    margin: 0px;
+}
+
 p {
     margin: 4px 0px;
 }
