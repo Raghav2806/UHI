@@ -9,7 +9,6 @@ import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
 import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
 import * as dotenv from "dotenv";
-import { getDoctorDetails } from "./repositries/doctorRepositry.js";
 dotenv.config();
 
 connectDB();

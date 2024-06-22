@@ -63,16 +63,3 @@ export async function updatePresUser(patient, prescriptionNumber) {
         throw error;
     }
 }
-
-export async function getUserDetails(userId) {
-    try {
-        const patient = await User.findById(userId);
-        if (!patient) {
-            throw new Error('User not found');
-        }
-        return patient;
-    } catch (error) {
-        console.error('Error fetching user details:', error);
-        throw error;
-    }
-}
