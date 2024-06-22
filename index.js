@@ -20,7 +20,7 @@ app.use(session({
   secret: 'iLoveLily', // replace with a strong secret key
   resave: false,
   saveUninitialized: true,
-  cookie: {secure: false},// set secure to true if using HTTPS
+  cookie: {secure: false},// set secure to true if using HTTPS.
 }));
 let sharedConstMeds;
 let sharedConstDocs;
