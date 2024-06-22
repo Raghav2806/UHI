@@ -16,6 +16,7 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
+let sharedConst;
 
 const saltRounds = 10;
 
@@ -36,10 +37,10 @@ app.post("/doctorForm", async (req, res) => {
       const storedPassword = existingUser.password;
       if(loginPassword == storedPassword) {
         const docDomain=await docDom(username);
-        const docMeds=await domMed(docDom);
-        const dt2a = await readAllMed();
+        const docMeds=await domMed(docDomain);
+        sharedConst=docMeds;
         res.render("doctorForm.ejs", {
-          input1: dt2a,
+          input1: docMeds,
         });
       } else {
         res.send("Incorrect Password");
@@ -76,10 +77,8 @@ app.post("/prescription", async(req, res) => {
 })
 
 app.get("/doctorForm", async(req, res) => {
-  //get meds only associated to the current doc
-  const dt2a = await readAllMed();
   res.render("doctorForm.ejs", {
-    input1: dt2a,
+    input1: sharedConst,
   });
 })
 

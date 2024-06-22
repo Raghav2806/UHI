@@ -22,19 +22,22 @@ export async function docDom(username) {
 
 export async function domMed(doctorDomain) {
     try {
-        // Find medications related to the doctor's domain
-        const domainMeds = await Med.find({ domain: doctorDomain }, 'medicines');
+        const domainMeds = await Med.find({ domain: doctorDomain }, 'primaryComplaint medicines');
 
-        // Extract and flatten the medicines array
-        const medicinesList = domainMeds.reduce((acc, med) => {
+        const medicinesByComplaint = domainMeds.reduce((acc, med) => {
+            const complaint = med.primaryComplaint;
             const medicines = Array.isArray(med.medicines) ? med.medicines : [];
-            return [...acc, ...medicines];
-        }, []);
+            
+            if (acc[complaint]) {
+                acc[complaint] = [...new Set([...acc[complaint], ...medicines])];
+            } else {
+                acc[complaint] = [...new Set(medicines)];
+            }
+            
+            return acc;
+        }, {});
 
-        // Remove duplicates
-        const uniqueMedicines = [...new Set(medicinesList)];
-
-        return uniqueMedicines;
+        return medicinesByComplaint;
     } catch (err) {
         console.error(`Error fetching medicines for domain ${doctorDomain}:`, err);
         throw err;
