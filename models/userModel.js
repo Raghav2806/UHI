@@ -6,12 +6,13 @@ const userSchema=new mongoose.Schema({
     fullName:String,
     address: String,
     contactNumber: Number,
-    dateOfBirth: {
-        type: Date, 
-        required: true,
-        trim: true,
-    }, 
+    // dateOfBirth: {
+    //     type: Date, 
+    //     required: true,
+    //     trim: true,
+    // }, 
     gender: String,
+    height: Number,
     weight: Number, 
     prescriptions:[String], 
 })
