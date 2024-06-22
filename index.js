@@ -2,7 +2,7 @@ import express from "express";
 import session from "express-session";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
-import { createUser, getIsoDate, getPrescriptionNumber, updatePresUser , getUserDetails} from "./repositries/userRepository.js";
+import { createUser, getIsoDate, getPrescriptionNumber, updatePresUser } from "./repositries/userRepository.js";
 import { addMeds} from "./repositries/medRepository.js";
 import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
@@ -66,10 +66,6 @@ app.post("/doctorForm", async (req, res) => {
 
 app.post("/prescription", async(req, res) => {
   const medData = req.body;
-  //patient data has been called below
-  const patient=getUserDetails(medData.patientID);
-  //doctor data has been called below
-  const doctor=getDoctorDetails(sharedConstDocs);
   const userData = await findPatientByUsername(medData.patientID);
   const doctorUsername = req.session.username
   const doctorData = await findDoctorByEmail(doctorUsername);
