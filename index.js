@@ -63,11 +63,9 @@ app.post("/prescription", async(req, res) => {
   if (customMeds) {
     customMeds.pop();
     createPrescription(data1, customMeds);
-    // createUser(data1,customMeds);
     addMeds(data1.otherDisease,customMeds);
   } else {
     createPrescription(data1, medicines);
-    // createUser(data1,medicines);
   }
   res.render("prescription.ejs", {
     input: data1,

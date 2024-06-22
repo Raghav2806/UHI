@@ -4,6 +4,7 @@ const doctorSchema=new mongoose.Schema({
     username:String,
     password:String,
     docName:String,
+    docQuals:[String],
     domain:String,
 })
 
