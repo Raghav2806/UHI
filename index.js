@@ -22,7 +22,8 @@ app.use(session({
   saveUninitialized: true,
   cookie: {secure: false},// set secure to true if using HTTPS
 }));
-let sharedConst;
+let sharedConstMeds;
+let sharedConstUser;
 
 const saltRounds = 10;
 
@@ -45,7 +46,7 @@ app.post("/doctorForm", async (req, res) => {
       if(loginPassword == storedPassword) {
         const docDomain=await docDom(username);
         const docMeds=await domMed(docDomain);
-        sharedConst=docMeds;
+        sharedConstMeds=docMeds;
         req.session.username=username;
         res.render("doctorForm.ejs", {
           input1: docMeds,
@@ -63,14 +64,15 @@ app.post("/doctorForm", async (req, res) => {
 });
 
 app.post("/prescription", async(req, res) => {
-  //get patient data by patient id and pass it to prescription
   //send doctor info as well according to the doctor using the form
   const medData = req.body;
+  //patient data called below
+  const patient=getUserDetails(medData.patientID);
   const userData = await findPatientByUsername(medData.patientID);
   const doctorUsername = req.session.username
   const doctorData = await findDoctorByEmail(doctorUsername);
   medData.currentDate=getIsoDate();
-  medData.prescriptionNumber=getPrescriptionNumber();
+  medData.prescriptionNumber=getPrescriptionNumber(sharedConstUser);
   const medicines=req.body.medicines;
   const customMeds=req.body.customMedicines;
   if (customMeds) {
@@ -80,6 +82,7 @@ app.post("/prescription", async(req, res) => {
   } else {
     createPrescription(medData, medicines);
   }
+  updatePresUser(medData.patientID, medData.prescriptionNumber);
   console.log(doctorData);
   res.render("prescription.ejs", {
     input: medData,
