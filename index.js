@@ -6,7 +6,7 @@ import { readAllMed , addMeds} from "./repositries/medRepository.js";
 import { findDoctorByEmail } from "./services/doctorServices.js";
 import { findPatientByEmail } from "./services/patientServices.js";
 import { docDom } from "./services/doctorServices.js";
-import { domMed } from "./repositries/doctorRepository.js";
+import { domMed } from "./services/doctorServices.js";
 import { connectDB } from "./config/db.js";
 import * as dotenv from "dotenv";
 dotenv.config();
