@@ -13,7 +13,7 @@ const userSchema=new mongoose.Schema({
     }, 
     gender: String,
     weight: Number, 
-    prescriptions:String, 
+    prescriptions:[String], 
 })
 
 const User=mongoose.model("users", userSchema)
