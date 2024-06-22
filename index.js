@@ -9,6 +9,7 @@ import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
 import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
 import * as dotenv from "dotenv";
+import { getDoctorDetails } from "./repositries/doctorRepositry.js";
 dotenv.config();
 
 connectDB();
@@ -23,7 +24,7 @@ app.use(session({
   cookie: {secure: false},// set secure to true if using HTTPS
 }));
 let sharedConstMeds;
-let sharedConstUser;
+let sharedConstDocs;
 
 const saltRounds = 10;
 
@@ -37,7 +38,7 @@ app.post("/doctor", async (req, res) => {
 
 app.post("/doctorForm", async (req, res) => {
   const username = req.body.username;
-  sharedConstUser=username;
+  sharedConstDocs=username;
   const loginPassword = req.body.password;
   try {
     const existingUser = await findDoctorByEmail(username);
@@ -64,23 +65,24 @@ app.post("/doctorForm", async (req, res) => {
 });
 
 app.post("/prescription", async(req, res) => {
-  //send doctor info as well according to the doctor using the form
   const medData = req.body;
-  //patient data called below
+  //patient data has been called below
   const patient=getUserDetails(medData.patientID);
+  //doctor data has been called below
+  const doctor=getDoctorDetails(sharedConstDocs);
   const userData = await findPatientByUsername(medData.patientID);
   const doctorUsername = req.session.username
   const doctorData = await findDoctorByEmail(doctorUsername);
   medData.currentDate=getIsoDate();
-  medData.prescriptionNumber=getPrescriptionNumber(sharedConstUser);
+  medData.prescriptionNumber=getPrescriptionNumber(sharedConstDocs);
   const medicines=req.body.medicines;
   const customMeds=req.body.customMedicines;
   if (customMeds) {
     customMeds.pop();
-    createPrescription(medData, customMeds);
+    createPrescription(medData, customMeds, sharedConstDocs);
     addMeds(medData.otherDisease,customMeds);
   } else {
-    createPrescription(medData, medicines);
+    createPrescription(medData, medicines, sharedConstDocs);
   }
   updatePresUser(medData.patientID, medData.prescriptionNumber);
   console.log(doctorData);
