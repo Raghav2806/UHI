@@ -10,6 +10,7 @@ export async function createPrescription (data, meds, docID, domain) {
             diagnosedDisease:data["otherDisease"],
             diagnosedMeds:meds,
             additionalNotes:data["notes"],
+            diagnosedDate:data["currentDate"],
         });
     } else {
     const prescription=await Prescription.create({
@@ -20,6 +21,7 @@ export async function createPrescription (data, meds, docID, domain) {
         diagnosedDisease:data["disease"],
         diagnosedMeds:meds,
         additionalNotes:data["notes"],
+        diagnosedDate:data["currentDate"],
     });
 }
 }

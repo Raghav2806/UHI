@@ -209,19 +209,23 @@ app.get('/prescription/:prescriptionNumber', async(req, res) => {
   const doctorID = prescriptionData.doctorID;
   const doctorData = await findDoctorByEmail(doctorID);
   const medicines = prescriptionData.diagnosedMeds;
-  const otherData=req.body;
-  otherData.currentDate=getIsoDate();
-  otherData.prescriptionNumber=prescriptionNumber;
-  otherData.disease=prescriptionData.diagnosedDisease;
-  otherData.notes=prescriptionData.additionalNotes;
-  // Fetch prescription data using the prescriptionNumber
-  // Then render the prescription.ejs template with the data
+  const otherData = req.body;
+  
+  otherData.currentDate = prescriptionData.diagnosedDate 
+    ? prescriptionData.diagnosedDate.toISOString() 
+    : 'Date not available';
+
+  console.log(typeof(otherData.currentDate));
+  otherData.prescriptionNumber = prescriptionNumber;
+  otherData.disease = prescriptionData.diagnosedDisease;
+  otherData.notes = prescriptionData.additionalNotes;
+  
   res.render('prescription.ejs', {
      input: otherData,
      doctor: doctorData,
      user: userData, 
      medicines: medicines,
-    });
+  });
 });
 
 app.get('/welcomeUser', (req, res) => {

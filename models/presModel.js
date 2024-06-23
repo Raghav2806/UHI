@@ -4,6 +4,7 @@ const prescriptionSchema= new mongoose.Schema({
     prescriptionNumber: String,
     patientID:String,
     doctorID:String,
+    diagnosedDate:Date,
     diagnosedDomain:String,
     diagnosedDisease: String,
     diagnosedMeds:[String],
