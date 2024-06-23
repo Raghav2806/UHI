@@ -3,12 +3,13 @@ import session from "express-session";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import { createUser, getIsoDate, getPrescriptionNumber, updatePresUser } from "./repositries/userRepository.js";
+import { updatePresDoc } from "./repositries/docRepository.js";
 import { addMeds} from "./repositries/medRepository.js";
 import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
 import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
-import { getDomains } from "./services/jungle.js";
+import { getDomains, getUniqueDomains } from "./services/jungle.js";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -79,6 +80,7 @@ app.post("/prescription", async(req, res) => {
     createPrescription(medData, medicines, doctorUsername, doctorData.domain);
   }
   updatePresUser(medData.patientID, medData.prescriptionNumber);
+  updatePresDoc(doctorUsername, medData.prescriptionNumber);
   res.render("prescription.ejs", {
     input: medData,
     doctor: doctorData,
@@ -162,8 +164,11 @@ app.post("/patientHomeLog", async (req, res) => {
       
       if (result) {
         const diagnosisDomains = await getDomains(userData.username);
-        console.log(diagnosisDomains);
-        res.render("patientHome.ejs");
+        const diagnosedDomain=getUniqueDomains(diagnosisDomains);
+        console.log(diagnosedDomain);
+        res.render("patientHome.ejs",{
+          input2:diagnosedDomain,
+        });
       } else {
         res.send("Incorrect Password");
       }

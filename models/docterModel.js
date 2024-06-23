@@ -7,6 +7,7 @@ const doctorSchema=new mongoose.Schema({
     docQuals:[String],
     specialization: String,
     domain:String,
+    prescriptions:[String],
 })
 
 const Doctor=mongoose.model("doctors", doctorSchema)

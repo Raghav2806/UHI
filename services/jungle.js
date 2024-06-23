@@ -15,3 +15,7 @@ export async function getDomains(username) {
     }
     return domains;
 };
+
+export function getUniqueDomains(array){
+    return [...new Set(array)];
+}
