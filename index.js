@@ -187,15 +187,8 @@ app.post('/get-third-dropdown-options', async(req, res) => {
     const modSecondValue=secondValue.substring(0,6);
     const reqArray=await getDocUser(sharedConstUser, modSecondValue);
     console.log(reqArray);
-    
-    // This is where you would typically fetch data from a database
-    // For this example, we'll just return some dummy data
     const dummyOptions = reqArray;
     
-    // You could use the firstValue and secondValue to determine what options to return
-    console.log(`Received: firstValue=${firstValue}, secondValue=${secondValue}`);
-    
-    // Simulate a delay to mimic a database query
     setTimeout(() => {
       res.json(dummyOptions);
   }, 500);
@@ -204,7 +197,6 @@ app.post('/get-third-dropdown-options', async(req, res) => {
 app.get('/prescription/:prescriptionNumber', async(req, res) => {
   const prescriptionNumber = req.params.prescriptionNumber;
   const prescriptionData = await getPrescriptionData(prescriptionNumber);
-  console.log(prescriptionData);
   const userData = await findPatientByUsername(prescriptionData.patientID);
   const doctorID = prescriptionData.doctorID;
   const doctorData = await findDoctorByEmail(doctorID);
@@ -215,7 +207,6 @@ app.get('/prescription/:prescriptionNumber', async(req, res) => {
     ? prescriptionData.diagnosedDate.toISOString() 
     : 'Date not available';
 
-  console.log(typeof(otherData.currentDate));
   otherData.prescriptionNumber = prescriptionNumber;
   otherData.disease = prescriptionData.diagnosedDisease;
   otherData.notes = prescriptionData.additionalNotes;
