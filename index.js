@@ -9,7 +9,7 @@ import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
 import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
-import { getDomains, uniqy } from "./services/jungle.js";
+import { getDomains, uniqy, getDoctorsByDomain, getDomainDoctorMap } from "./services/jungle.js";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -163,11 +163,10 @@ app.post("/patientHomeLog", async (req, res) => {
       const result = await bcrypt.compare(userData.password, storedHashedPassword);
       
       if (result) {
-        const diagnosisDomains = await getDomains(userData.username);
-        const diagnosedDomain=uniqy(diagnosisDomains);
-        console.log(diagnosedDomain);
+        const reqDoc=await getDomainDoctorMap(userData.username);
+        console.log(JSON.stringify(reqDoc, null, 2));
         res.render("patientHome.ejs",{
-          input2:diagnosedDomain,
+          input2:["Gy"],
         });
       } else {
         res.send("Incorrect Password");
