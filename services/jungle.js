@@ -16,6 +16,6 @@ export async function getDomains(username) {
     return domains;
 };
 
-export function getUniqueDomains(array){
+export function uniqy(array){
     return [...new Set(array)];
 }
