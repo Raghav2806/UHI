@@ -9,13 +9,14 @@ import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
 import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
-import { getDomains, uniqy, getDoctorsByDomain, getDomainDoctorMap } from "./services/jungle.js";
+import { getDocUser, getDomainDoctorMap } from "./services/jungle.js";
 import * as dotenv from "dotenv";
 dotenv.config();
 
 connectDB();
 const app = express();
 app.set("view engine", "ejs");
+app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(session({
@@ -25,6 +26,7 @@ app.use(session({
   cookie: {secure: false},// set secure to true if using HTTPS.
 }));
 let sharedConstMeds;
+let sharedConstUser;
 
 const saltRounds = 10;
 
@@ -158,15 +160,15 @@ app.post("/patientHomeLog", async (req, res) => {
   const userData = req.body;
   try {
     const existingUser = await findPatientByUsername(userData.username);
+    sharedConstUser=userData.username;
     if (existingUser) {
       const storedHashedPassword = existingUser.password;
       const result = await bcrypt.compare(userData.password, storedHashedPassword);
       
       if (result) {
         const reqDoc=await getDomainDoctorMap(userData.username);
-        console.log(JSON.stringify(reqDoc, null, 2));
         res.render("patientHome.ejs",{
-          input2:["Gy"],
+          input2:reqDoc,
         });
       } else {
         res.send("Incorrect Password");
@@ -178,6 +180,32 @@ app.post("/patientHomeLog", async (req, res) => {
     console.log(err);
     res.status(500).send("An error occurred");
   }
+});
+
+app.post('/get-third-dropdown-options', async(req, res) => {
+    const { firstValue, secondValue } = req.body;
+    const modSecondValue=secondValue.substring(0,6);
+    const reqArray=await getDocUser(sharedConstUser, modSecondValue);
+    console.log(reqArray);
+    
+    // This is where you would typically fetch data from a database
+    // For this example, we'll just return some dummy data
+    const dummyOptions = reqArray;
+    
+    // You could use the firstValue and secondValue to determine what options to return
+    console.log(`Received: firstValue=${firstValue}, secondValue=${secondValue}`);
+    
+    // Simulate a delay to mimic a database query
+    setTimeout(() => {
+      res.json(dummyOptions);
+  }, 500);
+});
+
+app.get('/prescription/:prescriptionNumber', (req, res) => {
+  const prescriptionNumber = req.params.prescriptionNumber;
+  // Fetch prescription data using the prescriptionNumber
+  // Then render the prescription.ejs template with the data
+  res.render('prescription', { prescription: prescriptionData });
 });
 
 app.get('/welcomeUser', (req, res) => {

@@ -56,7 +56,7 @@ export function uniqy(array, key) {
         return seen.has(k) ? false : seen.add(k);
     });
 }
-//
+
 export async function getDomainDoctorMap(username) {
     // Get unique diagnosis domains for the user
     const diagnosisDomains = await getDomains(username);
@@ -72,7 +72,7 @@ export async function getDomainDoctorMap(username) {
         
         // Get unique doctors by username and create concatenated strings
         const uniqueDoctors = uniqy(doctors, "username").map(doctor => 
-            `${doctor.username}${doctor.docName}`
+            `${doctor.username}-${doctor.docName}`
         );
 
         // Add the domain-doctor pair to the map
@@ -81,4 +81,28 @@ export async function getDomainDoctorMap(username) {
 
     return domainDoctorMap;
 }
-//
+
+export async function getDocUser(username, doctorID) {
+    try {
+        // Find the user by username
+        const user = await User.findOne({ username });
+
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        // Get the first 6 characters of the doctorID
+        const doctorPrefix = doctorID.substring(0, 6);
+
+        // Filter the prescriptionsNumbers array
+        const matchingPrescriptions = user.prescriptionsNumbers.filter(prescriptionNumber => 
+            prescriptionNumber.substring(0, 6) === doctorPrefix
+        );
+
+        return matchingPrescriptions;
+
+    } catch (error) {
+        console.error('Error in getDocUser:', error);
+        throw error;
+    }
+}

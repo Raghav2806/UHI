@@ -26,11 +26,20 @@
                 </select>
             </div>
             
-            <div class="col-md-4 mb-3">
-                <select id="thirdDropdown" class="form-select" disabled>
+            <div class="col-md-4 mb-3" id="thirdDropdownContainer" style="display: none;">
+                <select id="thirdDropdown" class="form-select">
                     <option selected>Select third option</option>
-                    <!-- Options will be populated based on second dropdown -->
+                    <!-- Options will be populated from backend -->
                 </select>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <button id="submitButton" class="btn btn-primary" disabled>Submit</button>
+            </div>
+            <div class="col-md-4">
+                <button id="showPrescriptionButton" class="btn btn-success" style="display: none;">Show Prescription</button>
             </div>
         </div>
     </div>
@@ -45,28 +54,105 @@
 
         function populateFirstDropdown() {
             const dropdown = document.getElementById('firstDropdown');
-            const values = Object.values(inputData);
+            const keys = Object.keys(inputData);
             
-            for (let i = 0; i < values.length; i++) {
+            for (let key of keys) {
                 const option = document.createElement('option');
-                option.value = i;  // Use index as value
-                option.textContent = values[i];  // Use the value at this index as text
+                option.value = key;
+                option.textContent = key;
                 dropdown.appendChild(option);
+            }
+        }
+
+        function populateSecondDropdown(selectedKey) {
+            const dropdown = document.getElementById('secondDropdown');
+            dropdown.innerHTML = '<option selected>Select second option</option>'; // Reset options
+            
+            if (selectedKey in inputData) {
+                const values = inputData[selectedKey];
+                for (let value of values) {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    dropdown.appendChild(option);
+                }
+            }
+        }
+
+        function checkSubmitButton() {
+            const firstDropdown = document.getElementById('firstDropdown');
+            const secondDropdown = document.getElementById('secondDropdown');
+            const submitButton = document.getElementById('submitButton');
+            
+            if (firstDropdown.value !== 'Choose an option' && secondDropdown.value !== 'Select second option') {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
             }
         }
 
         document.getElementById('firstDropdown').addEventListener('change', function() {
             const secondDropdown = document.getElementById('secondDropdown');
-            secondDropdown.disabled = false;
-            // Populate second dropdown based on first dropdown selection
-            // You'll need to implement this logic
+            const selectedKey = this.value;
+            
+            if (selectedKey !== 'Choose an option') {
+                secondDropdown.disabled = false;
+                populateSecondDropdown(selectedKey);
+            } else {
+                secondDropdown.disabled = true;
+                secondDropdown.innerHTML = '<option selected>Select second option</option>';
+            }
+            
+            checkSubmitButton();
         });
 
         document.getElementById('secondDropdown').addEventListener('change', function() {
-            const thirdDropdown = document.getElementById('thirdDropdown');
-            thirdDropdown.disabled = false;
-            // Populate third dropdown based on second dropdown selection
-            // You'll need to implement this logic
+            checkSubmitButton();
+        });
+
+        document.getElementById('submitButton').addEventListener('click', function() {
+            const firstValue = document.getElementById('firstDropdown').value;
+            const secondValue = document.getElementById('secondDropdown').value;
+            
+            fetch('/get-third-dropdown-options', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ firstValue, secondValue }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                populateThirdDropdown(data);
+                document.getElementById('thirdDropdownContainer').style.display = 'block';
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        function populateThirdDropdown(options) {
+            const dropdown = document.getElementById('thirdDropdown');
+            dropdown.innerHTML = '<option selected>Select third option</option>';
+            
+            for (let option of options) {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                dropdown.appendChild(optionElement);
+            }
+
+            dropdown.addEventListener('change', function() {
+                const showPrescriptionButton = document.getElementById('showPrescriptionButton');
+                if (this.value !== 'Select third option') {
+                    showPrescriptionButton.style.display = 'block';
+                } else {
+                    showPrescriptionButton.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('showPrescriptionButton').addEventListener('click', function() {
+            const prescriptionNumber = document.getElementById('thirdDropdown').value;
+            window.location.href = `/prescription/${prescriptionNumber}`;
         });
 
         window.onload = function() {
