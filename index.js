@@ -77,7 +77,7 @@ app.post("/prescription", async(req, res) => {
   if (customMeds) {
     customMeds.pop();
     createPrescription(medData, customMeds, doctorUsername, doctorData.domain);
-    addMeds(medData.otherDisease,customMeds);
+    addMeds(medData.otherDisease,customMeds,doctorData.domain);
   } else {
     createPrescription(medData, medicines, doctorUsername, doctorData.domain);
   }

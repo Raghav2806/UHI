@@ -1,4 +1,4 @@
-import Med from '../models/medModel.js';
+import Med from "../models/medModel.js";
 
 // export async function readAllMed() {
 //     try {
@@ -19,10 +19,13 @@ import Med from '../models/medModel.js';
 //     }
 // }
 
-export async function addMeds (disease,customMeds) {
-        const meds = await Med.create({
-            primaryComplaint: disease,
-            medicines: customMeds,
-        })
-        console.log(meds);
+export async function addMeds(disease, customMeds, domain) {
+  const existingMed = await Med.findOne({ primaryComplaint: disease });
+  if (!existingMed) {
+    const meds = await Med.create({
+      primaryComplaint: disease,
+      medicines: customMeds,
+      domain: domain,
+    });
+  } 
 }
