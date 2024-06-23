@@ -106,3 +106,7 @@ export async function getDocUser(username, doctorID) {
         throw error;
     }
 }
+
+export async function getPrescriptionData(prescriptionNumber) {
+    return await Prescription.findOne({prescriptionNumber: prescriptionNumber});
+}

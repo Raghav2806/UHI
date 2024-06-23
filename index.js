@@ -9,7 +9,7 @@ import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
 import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
-import { getDocUser, getDomainDoctorMap } from "./services/jungle.js";
+import { getDocUser, getDomainDoctorMap, getPrescriptionData } from "./services/jungle.js";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -201,11 +201,27 @@ app.post('/get-third-dropdown-options', async(req, res) => {
   }, 500);
 });
 
-app.get('/prescription/:prescriptionNumber', (req, res) => {
+app.get('/prescription/:prescriptionNumber', async(req, res) => {
   const prescriptionNumber = req.params.prescriptionNumber;
+  const prescriptionData = await getPrescriptionData(prescriptionNumber);
+  console.log(prescriptionData);
+  const userData = await findPatientByUsername(prescriptionData.patientID);
+  const doctorID = prescriptionData.doctorID;
+  const doctorData = await findDoctorByEmail(doctorID);
+  const medicines = prescriptionData.diagnosedMeds;
+  const otherData=req.body;
+  otherData.currentDate=getIsoDate();
+  otherData.prescriptionNumber=prescriptionNumber;
+  otherData.disease=prescriptionData.diagnosedDisease;
+  otherData.notes=prescriptionData.additionalNotes;
   // Fetch prescription data using the prescriptionNumber
   // Then render the prescription.ejs template with the data
-  res.render('prescription', { prescription: prescriptionData });
+  res.render('prescription.ejs', {
+     input: otherData,
+     doctor: doctorData,
+     user: userData, 
+     medicines: medicines,
+    });
 });
 
 app.get('/welcomeUser', (req, res) => {
