@@ -152,7 +152,7 @@
 
         document.getElementById('showPrescriptionButton').addEventListener('click', function() {
             const prescriptionNumber = document.getElementById('thirdDropdown').value;
-            window.location.href = `/prescription/${prescriptionNumber}`;
+            window.open(`/prescription/${prescriptionNumber}`, '_blank');
         });
 
         window.onload = function() {
