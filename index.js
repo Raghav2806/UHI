@@ -118,34 +118,40 @@ app.post("/patient", async (req, res) => {
 })
 
 app.post("/patientRegister", async(req, res) => {
-  res.render("patientForm.ejs");
+  res.render("patientFormOne.ejs");
 })
 
-
+app.post("/patientFormTwo", async(req, res) => {
+  const userData = req.body;
+  try {
+    const existingUser = await findPatientByContactNumber(userData.contactNumber);
+    if(existingUser) {
+      res.send("Account with this contact number already exists. Try logging in.");
+      return;
+    } else {
+      res.render("patientFormTwo.ejs",{
+        contactNumber: userData.contactNumber,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+})
 
 app.post("/patientHome", async (req, res) => {
   const userData = req.body;
   userData.username = `${userData.contactNumber}@abc`;
-  console.log(userData.username);
-  
   try {
-    const existingUser = await findPatientByUsername(userData.username);
-    if (existingUser) {
-      res.send("Email already exists. Try logging in.");
-      return;
-    } else {
-      //Hashing
-      bcrypt.hash(userData.password, saltRounds, async(err, hash) => {
-        if (err) {
-          console.log(err);
-        } else {
-        userData.password = hash;  
-        createUser(userData);
-        // update createUser
-        res.render("patientHome.ejs");
-        }
-      })
-    }
+    bcrypt.hash(userData.password, saltRounds, async(err, hash) => {
+      if (err) {
+        console.log(err);
+      } else {
+      userData.password = hash;  
+      createUser(userData);
+      // update createUser
+      res.render("patientHome.ejs");
+      }
+    })
   } catch (err) {
     console.log(err);
   }
