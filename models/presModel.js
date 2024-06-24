@@ -4,11 +4,12 @@ const prescriptionSchema= new mongoose.Schema({
     prescriptionNumber: String,
     patientID:String,
     doctorID:String,
-    diagnosedDate:Date,
+    prescriptionDate:Date,
     diagnosedDomain:String,
     diagnosedDisease: String,
     diagnosedMeds:[String],
     additionalNotes:String,
+    age:String,
 })
 const Prescription=mongoose.model("prescriptions", prescriptionSchema)
 export default Prescription

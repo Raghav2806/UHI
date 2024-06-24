@@ -7,7 +7,7 @@ import { updatePresDoc } from "./repositries/docRepository.js";
 import { addMeds} from "./repositries/medRepository.js";
 import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
-import { findPatientByContactNumber, findPatientByUsername } from "./services/patientServices.js";
+import { findPatientByContactNumber, findPatientByUsername, getAge } from "./services/patientServices.js";
 import { connectDB } from "./config/db.js";
 import { getDocUser, getDomainDoctorMap, getPrescriptionData } from "./services/jungle.js";
 import * as dotenv from "dotenv";
@@ -66,25 +66,27 @@ app.post("/doctorForm", async (req, res) => {
 });
 
 app.post("/prescription", async(req, res) => {
-  const medData = req.body;
-  const userData = await findPatientByUsername(medData.patientID);
+  const prescriptionData = req.body;
+  const userData = await findPatientByUsername(prescriptionData.patientID);
   const doctorUsername = req.session.username
   const doctorData = await findDoctorByEmail(doctorUsername);
-  medData.currentDate=getIsoDate();
-  medData.prescriptionNumber=getPrescriptionNumber(doctorUsername);
+  prescriptionData.currentDate=getIsoDate();
+  prescriptionData.prescriptionNumber=getPrescriptionNumber(doctorUsername);
+  userData.age = getAge(userData.dateOfBirth);
+  prescriptionData.age = userData.age;
   const medicines=req.body.medicines;
   const customMeds=req.body.customMedicines;
   if (customMeds) {
     customMeds.pop();
-    createPrescription(medData, customMeds, doctorUsername, doctorData.domain);
-    addMeds(medData.otherDisease,customMeds,doctorData.domain);
+    createPrescription(prescriptionData, customMeds, doctorUsername, doctorData.domain);
+    addMeds(prescriptionData.otherDisease,customMeds,doctorData.domain);
   } else {
-    createPrescription(medData, medicines, doctorUsername, doctorData.domain);
+    createPrescription(prescriptionData, medicines, doctorUsername, doctorData.domain);
   }
-  updatePresUser(medData.patientID, medData.prescriptionNumber);
-  updatePresDoc(doctorUsername, medData.prescriptionNumber);
+  updatePresUser(prescriptionData.patientID, prescriptionData.prescriptionNumber);
+  updatePresDoc(doctorUsername, prescriptionData.prescriptionNumber);
   res.render("prescription.ejs", {
-    input: medData,
+    input: prescriptionData,
     doctor: doctorData,
     user: userData,
     medicines: medicines,
@@ -118,6 +120,8 @@ app.post("/patient", async (req, res) => {
 app.post("/patientRegister", async(req, res) => {
   res.render("patientForm.ejs");
 })
+
+
 
 app.post("/patientHome", async (req, res) => {
   const userData = req.body;
@@ -198,6 +202,7 @@ app.get('/prescription/:prescriptionNumber', async(req, res) => {
   const prescriptionNumber = req.params.prescriptionNumber;
   const prescriptionData = await getPrescriptionData(prescriptionNumber);
   const userData = await findPatientByUsername(prescriptionData.patientID);
+  userData.age = prescriptionData.age;
   const doctorID = prescriptionData.doctorID;
   const doctorData = await findDoctorByEmail(doctorID);
   const medicines = prescriptionData.diagnosedMeds;
