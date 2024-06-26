@@ -166,10 +166,15 @@ app.post("/patientLogin", async(req, res) => {
   res.render("patientLogin.ejs");
 })
 
-app.post("/patientHomeLog", async (req, res) => {
+app.get("/patientHomeLog", async(req, res) => {
+  res.render("patientHomeLog.ejs");
+})
+
+app.get("/myPrescriptions", async (req, res) => {
   const userData = req.body;
+  console.log(userData);
   try {
-    const existingUser = await findPatientByUsername(userData.username);
+    const existingUser = await findPatientByContactNumber(userData.contactNumber);
     sharedConstUser=userData.username;
     if (existingUser) {
       const storedHashedPassword = existingUser.password;
@@ -177,7 +182,7 @@ app.post("/patientHomeLog", async (req, res) => {
       
       if (result) {
         const reqDoc=await getDomainDoctorMap(userData.username);
-        res.render("patientHome.ejs",{
+        res.render("myPrescriptions.ejs",{
           input2:reqDoc,
         });
       } else {

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="/styles/index.css" />
+</head>
+<body>
+    <div class="container mt-5"> 
+        <h1 class="mb-4">Show Prescriptions</h1>
+        
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <select id="firstDropdown" class="form-select">
+                    <option selected>Select Doctor Domain</option>
+                    <!-- Options will be dynamically populated -->
+                </select>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <select id="secondDropdown" class="form-select" disabled>
+                    <option selected>Select Doctor</option>
+                    <!-- Options will be populated based on first dropdown -->
+                </select>
+            </div>
+            
+            <div class="col-md-4 mb-3" id="thirdDropdownContainer" style="display: none;">
+                <select id="thirdDropdown" class="form-select">
+                    <option selected>Select Prescription</option>
+                    <!-- Options will be populated from backend -->
+                </select>
+            </div>
+        </div>
+        
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <button id="submitButton" class="btn btn-danger" disabled>Submit</button>
+            </div>
+            <div class="col-md-4">
+                <button id="showPrescriptionButton" class="btn btn-success" style="display: none;">Show Prescription</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        let inputData = {};
+        <% if (input2) { %>
+            inputData = <%- JSON.stringify(input2) %>;
+        <% } %>
+        console.log('inputData:', inputData);
+
+        function populateFirstDropdown() {
+            const dropdown = document.getElementById('firstDropdown');
+            const keys = Object.keys(inputData);
+            
+            for (let key of keys) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = key;
+                dropdown.appendChild(option);
+            }
+        }
+
+        function populateSecondDropdown(selectedKey) {
+            const dropdown = document.getElementById('secondDropdown');
+            dropdown.innerHTML = '<option selected>Select second option</option>'; // Reset options
+            
+            if (selectedKey in inputData) {
+                const values = inputData[selectedKey];
+                for (let value of values) {
+                    const option = document.createElement('option');
+                    option.value = value;
+                    option.textContent = value;
+                    dropdown.appendChild(option);
+                }
+            }
+        }
+
+        function checkSubmitButton() {
+            const firstDropdown = document.getElementById('firstDropdown');
+            const secondDropdown = document.getElementById('secondDropdown');
+            const submitButton = document.getElementById('submitButton');
+            
+            if (firstDropdown.value !== 'Choose an option' && secondDropdown.value !== 'Select second option') {
+                submitButton.disabled = false;
+            } else {
+                submitButton.disabled = true;
+            }
+        }
+
+        document.getElementById('firstDropdown').addEventListener('change', function() {
+            const secondDropdown = document.getElementById('secondDropdown');
+            const selectedKey = this.value;
+            
+            if (selectedKey !== 'Choose an option') {
+                secondDropdown.disabled = false;
+                populateSecondDropdown(selectedKey);
+            } else {
+                secondDropdown.disabled = true;
+                secondDropdown.innerHTML = '<option selected>Select second option</option>';
+            }
+            
+            checkSubmitButton();
+        });
+
+        document.getElementById('secondDropdown').addEventListener('change', function() {
+            checkSubmitButton();
+        });
+
+        document.getElementById('submitButton').addEventListener('click', function() {
+            const firstValue = document.getElementById('firstDropdown').value;
+            const secondValue = document.getElementById('secondDropdown').value;
+            
+            fetch('/get-third-dropdown-options', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ firstValue, secondValue }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                populateThirdDropdown(data);
+                document.getElementById('thirdDropdownContainer').style.display = 'block';
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        function populateThirdDropdown(options) {
+            const dropdown = document.getElementById('thirdDropdown');
+            dropdown.innerHTML = '<option selected>Select third option</option>';
+            
+            for (let option of options) {
+                const optionElement = document.createElement('option');
+                optionElement.value = option;
+                optionElement.textContent = option;
+                dropdown.appendChild(optionElement);
+            }
+
+            dropdown.addEventListener('change', function() {
+                const showPrescriptionButton = document.getElementById('showPrescriptionButton');
+                if (this.value !== 'Select third option') {
+                    showPrescriptionButton.style.display = 'block';
+                } else {
+                    showPrescriptionButton.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('showPrescriptionButton').addEventListener('click', function() {
+            const prescriptionNumber = document.getElementById('thirdDropdown').value;
+            window.open(`/prescription/${prescriptionNumber}`, '_blank');
+        });
+
+        window.onload = function() {
+            populateFirstDropdown();
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+</body>
+</html>
