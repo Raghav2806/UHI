@@ -166,15 +166,10 @@ app.post("/patientLogin", async(req, res) => {
   res.render("patientLogin.ejs");
 })
 
-app.get("/patientHomeLog", async(req, res) => {
-  res.render("patientHomeLog.ejs");
-})
-
-app.get("/myPrescriptions", async (req, res) => {
+app.post("/patientHomeLog", async (req, res) => {
   const userData = req.body;
-  console.log(userData);
   try {
-    const existingUser = await findPatientByContactNumber(userData.contactNumber);
+    const existingUser = await findPatientByUsername(userData.username);
     sharedConstUser=userData.username;
     if (existingUser) {
       const storedHashedPassword = existingUser.password;
@@ -182,7 +177,7 @@ app.get("/myPrescriptions", async (req, res) => {
       
       if (result) {
         const reqDoc=await getDomainDoctorMap(userData.username);
-        res.render("myPrescriptions.ejs",{
+        res.render("patientHomeLog.ejs",{
           input2:reqDoc,
         });
       } else {
@@ -195,6 +190,15 @@ app.get("/myPrescriptions", async (req, res) => {
     console.log(err);
     res.status(500).send("An error occurred");
   }
+});
+
+app.get("/myPrescriptions", async (req, res) => {
+  const userData = req.body;
+  sharedConstUser=userData.username;
+  const reqDoc=await getDomainDoctorMap(userData.username);
+        res.render("myPrescriptions.ejs",{
+          input2:reqDoc,
+        });
 });
 
 app.post('/get-third-dropdown-options', async(req, res) => {
