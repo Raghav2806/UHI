@@ -8,6 +8,7 @@ import { addMeds} from "./repositries/medRepository.js";
 import { createPrescription } from "./repositries/presRepository.js";
 import { findDoctorByEmail, docDom, domMed} from "./services/doctorServices.js";
 import { findPatientByContactNumber, findPatientByUsername, getAge } from "./services/patientServices.js";
+import { findLabByEmail } from "./repositries/labRepository.js";
 import { connectDB } from "./config/db.js";
 import { getDocUser, getDomainDoctorMap, getPrescriptionData } from "./services/jungle.js";
 import * as dotenv from "dotenv";
@@ -240,6 +241,34 @@ app.get('/welcomeUser', (req, res) => {
   const { username, fullName, address, dob, gender, weight, height } = req.query;
   res.render('welcomeUser', { username, fullName, address, dob, gender, weight, height });
 });
+
+app.post("/lab", async (req, res) => {
+  res.render("labLogin.ejs");
+});
+
+app.post("/labHome", async (req, res) => {
+  const username = req.body.username;
+  const loginPassword = req.body.password;
+  try {
+    const existingUser = await findLabByEmail(username);
+    if (existingUser) {
+      const storedPassword = existingUser.password;
+      if(loginPassword == storedPassword) {
+        req.session.username=username;
+        res.render("labHome.ejs", {
+          username: username,
+        });
+      } else {
+        res.send("Incorrect Password");
+      }
+    } else {
+      res.send("User not found");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
