@@ -19,9 +19,6 @@
         .prescription-container {
             page-break-after: avoid;
         }
-        .header {
-            margin-bottom: 10px;
-        }
         .meds ol {
             margin: 0;
             padding-left: 20px;
@@ -51,18 +48,21 @@
             <% const day=input.currentDate.slice(8,10); %>
             <% const hour=input.currentDate.slice(11,13); %>
             <% const minute=input.currentDate.slice(14,16); %>
-            <p>Prescription Serial Number: <%= input.prescriptionNumber %> </p>
-            <p>Date: <%=day%>/<%= month %>/<%=year%></p>
+            <p class="info">Prescription Serial Number: <%= input.prescriptionNumber %> </p>
+            <p class="info">Date: <%=day%>/<%= month %>/<%=year%></p>
         </div>
-        <p>Name: <%= user.fullName %></p>
-        <p>Address: <pre><%= user.address %></pre> </p>
-        <p>Contact Number: <%= user.contactNumber %></p>
+        <div class="header">
+        <p class="info">Name: <%= user.fullName %></p> 
+        <p class="info">Contact Number: <%= user.contactNumber %></p>
+        </div>
+        <p class="info">Address: <%= user.address %></p>
         <div class="space">
-            <p>Sex: <%= user.gender %></p>
-            <p>Age: <%= user.age %>yrs</p>
-            <p>Height: <%= user.height %>cm</p>
-            <p>Weight: <%= user.weight %>kg</p>
+            <p class="info">Sex: <%= user.gender %></p>
+            <p class="info">Age: <%= user.age %>yrs</p>
+            <p class="info">Height: <%= user.height %>cm</p>
+            <p class="info">Weight: <%= user.weight %>kg</p>
         </div>
+        <hr/>
         <% if(input.disease=="Other") { %>
         <h3><%= input.otherDisease %></h3>
         <% } else { %>

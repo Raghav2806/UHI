@@ -21,11 +21,11 @@
 .header {
     display: flex;
     justify-content: space-between;
-    margin: 12px 0px;
+    margin: 6px 0px;
 }
 
 .logo-contain {
-    width: 200px;
+    width: 150px;
     height: auto;
     display: flex;
     justify-content: center;
@@ -38,16 +38,17 @@
     background-position: center;
     background-repeat: no-repeat;
     width: 100%;
-    height: 66px;
+    height: 50px
 
 }
 
 .name {
+    font-size: 16px;
     margin-bottom: 4px;
 }
 
 .info {
-    font-size: small;
+    font-size: 13px;
     margin: 0px;
 }
 
@@ -58,13 +59,18 @@ p {
 .space {
     display: flex;
     justify-content: space-between;
-    width: 40%;
-    margin: 12px 0px;
+    width: 50%;
+    margin: 6px 0px;
+}
+
+hr {
+    margin: 2px 0px;
 }
 
 .footer {
     display: flex; 
     justify-content: flex-end;
+    align-self: flex-end;
 }
 
 .inFooter {
@@ -74,6 +80,7 @@ p {
 
 pre {
     font-family: Verdana, Geneva, sans-serif;
+    font-size: 12px;
 }
 
 .buttons {
