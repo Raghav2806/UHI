@@ -177,7 +177,7 @@ app.post("/patientHomeLog", async (req, res) => {
       
       if (result) {
         const reqDoc=await getDomainDoctorMap(userData.username);
-        res.render("patientHomeLog.ejs",{
+        res.render("patientHome.ejs",{
           input2:reqDoc,
         });
       } else {
@@ -190,15 +190,6 @@ app.post("/patientHomeLog", async (req, res) => {
     console.log(err);
     res.status(500).send("An error occurred");
   }
-});
-
-app.get("/myPrescriptions", async (req, res) => {
-  const userData = req.body;
-  sharedConstUser=userData.username;
-  const reqDoc=await getDomainDoctorMap(userData.username);
-        res.render("myPrescriptions.ejs",{
-          input2:reqDoc,
-        });
 });
 
 app.post('/get-third-dropdown-options', async(req, res) => {
