@@ -176,10 +176,8 @@ app.post("/patientHomeLog", async (req, res) => {
       const result = await bcrypt.compare(userData.password, storedHashedPassword);
       
       if (result) {
-        const reqDoc=await getDomainDoctorMap(userData.username);
-        res.render("patientHome.ejs",{
-          input2:reqDoc,
-        });
+        req.session.username=userData.username;
+        res.render("patientHomeLog.ejs",);
       } else {
         res.send("Incorrect Password");
       }
@@ -191,6 +189,14 @@ app.post("/patientHomeLog", async (req, res) => {
     res.status(500).send("An error occurred");
   }
 });
+
+app.get("/patientPrescriptions", async(req, res) => {
+  const username = req.session.username;
+  const reqDoc=await getDomainDoctorMap(username);
+  res.render("patientHome.ejs",{
+    input2:reqDoc,
+  });
+})
 
 app.post('/get-third-dropdown-options', async(req, res) => {
     const { firstValue, secondValue } = req.body;
