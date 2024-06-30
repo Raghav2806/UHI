@@ -1,19 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="/styles/index.css" />
+    <title>PDF Upload and Retrieval</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        #message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        #pdfList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #pdfList li {
+            margin-bottom: 10px;
+        }
+        #pdfList a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        #pdfList a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <h1>PDF Upload</h1>
-    <form id="uploadForm" method="POST" enctype="multipart/form-data">
+    <h1>Lab PDF Upload and Retrieval</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
         <input type="file" name="pdf" accept="application/pdf" required>
-        <input type="text" name="username" required>
         <button type="submit">Upload</button>
     </form>
     <div id="message"></div>
+
+    <h2>Stored PDFs</h2>
+    <ul id="pdfList"></ul>
+
     <script>
         document.getElementById('uploadForm').addEventListener('submit', function(event) {
             event.preventDefault();
@@ -38,6 +79,7 @@
                 document.getElementById('message').className = 'error';
             });
         });
+
         function fetchPDFList() {
             fetch('/pdfs')
                 .then(response => response.json())

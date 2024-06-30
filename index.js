@@ -1,4 +1,7 @@
 import express from "express";
+import { MongoClient, GridFSBucket, ObjectId } from "mongodb";
+import multer from "multer";
+import stream from 'stream';
 import session from "express-session";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
@@ -30,6 +33,70 @@ let sharedConstMeds;
 let sharedConstUser;
 
 const saltRounds = 10;
+const port = process.env.PORT || 3000;
+const mongoURL = process.env.URL || 'mongodb://localhost:27017/your_database';
+let client, db, bucket;
+
+const connectToMongo = async () => {
+  try {
+    client = await MongoClient.connect(mongoURL);
+    console.log('Connected to MongoDB');
+    db = client.db();
+    bucket = new GridFSBucket(db, { bucketName: 'pdfs' });
+  } catch (err) {
+    console.error('Error connecting to MongoDB:', err);
+  }
+};
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'application/pdf') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF files are allowed'), false);
+    }
+  }
+}).single('pdf');
+
+app.post('/upload', (req, res) => {
+  upload(req, res, async (err) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: `Multer error: ${err.message}` });
+    } else if (err) {
+      return res.status(400).json({ error: err.message });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+
+    const username = req.body.username;
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required.' });
+    }
+
+    try {
+      const readableStream = new stream.PassThrough();
+      readableStream.end(req.file.buffer);
+
+      const uploadStream = bucket.openUploadStream(req.file.originalname, {
+        contentType: req.file.mimetype,
+        metadata: { username: username }  // Add username as metadata
+      });
+
+      await new Promise((resolve, reject) => {
+        readableStream.pipe(uploadStream)
+          .on('finish', resolve)
+          .on('error', reject);
+      });
+
+      res.status(200).json({ message: 'File uploaded successfully' });
+    } catch (error) {
+      res.status(500).json({ error: 'Error uploading file' });
+    }
+  });
+});
 
 app.get("/", async (req, res) => {
   res.render("index.ejs");
@@ -199,6 +266,10 @@ app.get("/patientPrescriptions", async(req, res) => {
   });
 })
 
+app.get("/patientLab", async(req, res)=>{
+  res.render("patientLab.ejs");
+})
+
 app.post('/get-third-dropdown-options', async(req, res) => {
     const { firstValue, secondValue } = req.body;
     const modSecondValue=secondValue.substring(0,6);
@@ -269,6 +340,51 @@ app.post("/labHome", async (req, res) => {
   }
 });
 
+app.get('/pdfs', async (req, res) => {
+  const username=sharedConstUser;
+  try {
+    // Use the find method with a filter
+    const files = await bucket.find({ 'metadata.username': username }).toArray();
+    
+    if (files.length === 0) {
+      return res.status(404).json({ message: 'No PDFs found for this user' });
+    }
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    res.json(files.map(file => ({
+      id: file._id,
+      filename: file.filename,
+      uploadDate: file.uploadDate,
+      username: file.metadata.username
+    })));
+  } catch (error) {
+    console.error('Error retrieving PDF list:', error);
+    res.status(500).json({ error: 'Error retrieving PDF list' });
+  }
+});
+
+app.get('/pdf/:id', async (req, res) => {
+  try {
+    const id = new ObjectId(req.params.id);
+    const [file] = await bucket.find({ _id: id }).toArray();
+    
+    if (!file) {
+      return res.status(404).json({ error: 'PDF not found' });
+    }
+
+    res.set('Content-Type', 'application/pdf');
+    res.set('Content-Disposition', `inline; filename="${file.filename}"`);
+
+    bucket.openDownloadStream(id).pipe(res);
+  } catch (error) {
+    res.status(500).json({ error: 'Error retrieving PDF' });
+  }
+});
+
+const startServer = async () => {
+  await connectToMongo();
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+};
+
+startServer().catch(console.error);
