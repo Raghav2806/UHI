@@ -266,9 +266,9 @@ app.get("/patientPrescriptions", async(req, res) => {
   });
 })
 
-app.get("/patientLab", async(req, res)=>{
-  res.render("patientLab.ejs");
-})
+app.get("/patientLab", async (req, res) => {
+  res.render("patientLab.ejs", { username: sharedConstUser });
+});
 
 app.post('/get-third-dropdown-options', async(req, res) => {
     const { firstValue, secondValue } = req.body;
