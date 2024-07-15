@@ -10,20 +10,20 @@
       crossorigin="anonymous"
     />
     <link rel="stylesheet" href="/styles/main.css" />
-    <title>Form</title>
+    <title>Prescription Form</title>
   </head>
   <body>
     <div class="contain" style="flex-direction: column;">
-      <form action="/prescription" class="row g-3 container my-4" method="post">
+      <form action="/prescription" class="row g-3 container my-4" method="post" id="prescriptionForm">
         <div class="col-md-12 form-floating">
           <input
             type="text"
             class="form-control"
-            id="firstNameInput"
+            id="patientIDInput"
             placeholder="Patient ID"
             name="patientID"
           />
-          <label for="firstNameInput">Patient ID</label>
+          <label for="patientIDInput">Patient ID</label>
         </div>
         <div class="col-md-8">
           <div class="form-group row">
@@ -40,7 +40,6 @@
               <select
                 id="medicineDropdown"
                 class="form-select py-3"
-                name="medicine"
                 disabled
               >
                 <option selected>Choose a medicine</option>
@@ -68,15 +67,16 @@
           ></textarea>
           <label for="floatingTextarea">Additional Notes</label>
         </div>
-        <input class="btn btn-primary" type="submit" value="Submit" />
+        <input type="hidden" id="medicines" name="medicines" value="[]">
+        <button type="submit" class="btn btn-primary">Submit</button>
       </form>
       <form action="/logout" method="post">
         <button class="btn btn-danger" type="submit">Log Out</button>
       </form>
     </div>
 
-    <!-- New container for displaying selected details -->
-    <div id="selectedDetailsContainer" class="mt-4"></div>
+    <!-- Container for displaying selected details -->
+    <div id="medicineContainer" class="mt-4"></div>
 
     <!-- Modal -->
     <div class="modal fade" id="medicineModal" tabindex="-1" aria-labelledby="medicineModalLabel" aria-hidden="true">
@@ -102,10 +102,10 @@
               <label for="whenToTake" class="form-label">When?</label>
               <select class="form-select" id="whenToTake">
                 <option selected>Choose an option</option>
-                <option value="before_meals">Before meals</option>
-                <option value="after_meals">After meals</option>
-                <option value="with_meals">With meals</option>
-                <option value="before_bed">Before bed</option>
+                <option value="before meals">Before meals</option>
+                <option value="after meals">After meals</option>
+                <option value="with meals">With meals</option>
+                <option value="before bed">Before bed</option>
               </select>
             </div>
           </div>
@@ -233,22 +233,81 @@
           const selectedMedicine = document.getElementById('selectedMedicine').textContent.split(': ')[1];
           
           // Create a string with the selected details
-          const details = `Medicine: ${selectedMedicine}, Times per day: ${timesPerDay.value}, When to take: ${whenToTake.value}`;
+          const details = `${selectedMedicine}, ${timesPerDay.value} time(s) per day, ${whenToTake.value}`;
           
           // Display the details in the container
-          const detailsContainer = document.getElementById('selectedDetailsContainer');
+          const detailsContainer = document.getElementById('medicineContainer');
           const detailElement = document.createElement('p');
           detailElement.textContent = details;
           detailsContainer.appendChild(detailElement);
           
-          // Close the modal
+          // Update the hidden input field
+          const medicinesInput = document.getElementById('medicines');
+          let currentMedicines = medicinesInput.value ? JSON.parse(medicinesInput.value) : [];
+          currentMedicines.push(details);
+          medicinesInput.value = JSON.stringify(currentMedicines);
+          
+          // Close the modal and reset selections
           const modal = bootstrap.Modal.getInstance(document.getElementById('medicineModal'));
           modal.hide();
           
-          // Reset the medicine dropdown and modal selections
           document.getElementById('medicineDropdown').value = 'Choose a medicine';
           timesPerDay.value = 'Choose an option';
           whenToTake.value = 'Choose an option';
+      });
+
+      document.getElementById('prescriptionForm').addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // Get all form data
+          const formData = new FormData(this);
+          
+          // Convert FormData to JSON
+          const jsonData = Object.fromEntries(formData.entries());
+          
+          // Process the medicines
+          if (jsonData.medicines) {
+              jsonData.medicines = JSON.parse(jsonData.medicines);
+          } else {
+              jsonData.medicines = [];
+          }
+          
+          // Process custom medicines if any
+          const customMedicines = Array.from(formData.getAll('customMedicines[]')).filter(med => med.trim() !== '');
+          if (customMedicines.length > 0) {
+              jsonData.customMedicines = customMedicines;
+          }
+          
+          // If there's an 'otherDisease', add it to the jsonData
+          if (formData.get('otherDisease')) {
+              jsonData.otherDisease = formData.get('otherDisease');
+          }
+          
+          fetch('/prescription', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(jsonData)
+          })
+          .then(response => {
+              if (response.redirected) {
+                  window.location.href = response.url;
+              } else {
+                  return response.text();
+              }
+          })
+          .then(html => {
+              if (html) {
+                  document.open();
+                  document.write(html);
+                  document.close();
+              }
+          })
+          .catch((error) => {
+              console.error('Error:', error);
+              // Handle any errors
+          });
       });
 
       window.onload = function() {

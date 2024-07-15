@@ -43,13 +43,12 @@
             </div>
         </div>
         <div class="header">
-            <% const year=input.currentDate.slice(0,4);%>
-            <% const month=input.currentDate.slice(5,7); %>
-            <% const day=input.currentDate.slice(8,10); %>
-            <% const hour=input.currentDate.slice(11,13); %>
-            <% const minute=input.currentDate.slice(14,16); %>
+            <% const date = new Date(input.currentDate); %>
+            <% const year = date.getFullYear(); %>
+            <% const month = (date.getMonth() + 1).toString().padStart(2, '0'); %>
+            <% const day = date.getDate().toString().padStart(2, '0'); %>
             <p class="info">Prescription Serial Number: <%= input.prescriptionNumber %> </p>
-            <p class="info">Date: <%=day%>/<%= month %>/<%=year%></p>
+            <p class="info">Date: <%= day %>/<%= month %>/<%= year %></p>
         </div>
         <div class="header">
         <p class="info">Name: <%= user.fullName %></p> 
@@ -70,34 +69,34 @@
         <% } %>
         <p>Rx</p>
         <div class="meds">
-            <% if(input.disease=="Other") { %>
-            <% let medList = Array.isArray(customMedicines) ? customMedicines : [customMedicines]; %>
-            <% if (medList.length > 0 && medList[0]) { %>
-            <ol>
-                <% medList.forEach((med) => { %>
-                <li><%= med %></li>
-                <% }) %>
-            </ol>
+            <% if(input.disease === "Other") { %>
+                <% if (customMedicines && customMedicines.length > 0) { %>
+                    <ol>
+                        <% customMedicines.forEach((med) => { %>
+                            <li><%= med %></li>
+                        <% }) %>
+                    </ol>
+                <% } else { %>
+                    <p>No medicines prescribed.</p>
+                <% } %>
             <% } else { %>
-            <p>No medicines prescribed.</p>
-            <% }}else{ %>
-            <% let medList = Array.isArray(medicines) ? medicines : [medicines]; %>
-            <% if (medList.length > 0 && medList[0]) { %>
-            <ol>
-                <% medList.forEach((med) => { %>
-                <li><%= med %></li>
-                <% }) %>
-            </ol>
-            <% } else { %>
-            <p>No medicines prescribed.</p>
-            <% }} %>
+                <% if (medicines && medicines.length > 0) { %>
+                    <ol>
+                        <% medicines.forEach((med) => { %>
+                            <li><%= med %></li>
+                        <% }) %>
+                    </ol>
+                <% } else { %>
+                    <p>No medicines prescribed.</p>
+                <% } %>
+            <% } %>
         </div>
         <p>Additional Notes: <pre><%= input.notes %></pre></p>
         <div class="footer">
             <div class="inFooter">
                 <div class="sign">
                     <img />
-                    <p>Doctor's signature <br> <%=day%>/<%= month %>/<%= year %></p>
+                    <p>Doctor's signature <br> <%= day %>/<%= month %>/<%= year %></p>
                 </div>
                 <div class="stamp">
                     <img />

@@ -136,31 +136,35 @@ app.post("/doctorForm", async (req, res) => {
 app.post("/prescription", async(req, res) => {
   const prescriptionData = req.body;
   const userData = await findPatientByUsername(prescriptionData.patientID);
-  const doctorUsername = req.session.username
+  const doctorUsername = req.session.username;
   const doctorData = await findDoctorByEmail(doctorUsername);
-  prescriptionData.currentDate=getIsoDate();
-  prescriptionData.prescriptionNumber=getPrescriptionNumber(doctorUsername);
+  
+  prescriptionData.currentDate = getIsoDate();
+  prescriptionData.prescriptionNumber = getPrescriptionNumber(doctorUsername);
   userData.age = getAge(userData.dateOfBirth);
   prescriptionData.age = userData.age;
-  const medicines=req.body.medicines;
-  const customMeds=req.body.customMedicines;
-  if (customMeds) {
-    customMeds.pop();
-    createPrescription(prescriptionData, customMeds, doctorUsername, doctorData.domain);
-    addMeds(prescriptionData.otherDisease,customMeds,doctorData.domain);
+  
+  const medicines = prescriptionData.medicines || [];
+  const customMedicines = prescriptionData.customMedicines || [];
+  
+  if (prescriptionData.disease === "Other" && customMedicines.length > 0) {
+      createPrescription(prescriptionData, customMedicines, doctorUsername, doctorData.domain);
+      addMeds(prescriptionData.otherDisease, customMedicines, doctorData.domain);
   } else {
-    createPrescription(prescriptionData, medicines, doctorUsername, doctorData.domain);
+      createPrescription(prescriptionData, medicines, doctorUsername, doctorData.domain);
   }
+  
   updatePresUser(prescriptionData.patientID, prescriptionData.prescriptionNumber);
   updatePresDoc(doctorUsername, prescriptionData.prescriptionNumber);
+  
   res.render("prescription.ejs", {
-    input: prescriptionData,
-    doctor: doctorData,
-    user: userData,
-    medicines: medicines,
-    customMedicines: customMeds,
+      input: prescriptionData,
+      doctor: doctorData,
+      user: userData,
+      medicines: medicines,
+      customMedicines: customMedicines,
   });
-})
+});
 
 app.get("/doctorForm", async(req, res) => {
   res.render("doctorForm.ejs", {
