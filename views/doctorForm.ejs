@@ -29,19 +29,22 @@
           <div class="form-group row">
             <div class="col-md-6">
               <select
-                id="dynamicDropdown"
+                id="diseaseDropdown"
                 class="form-select py-3"
                 name="disease"
               >
-                <option selected>Choose an option</option>
+                <option selected>Choose a disease</option>
               </select>
             </div>
-            <div
-              class="col-md-6"
-              id="dynamicCheckboxContainer"
-              name="medicines"
-            >
-              <!-- Checkbox will be dynamically generated here -->
+            <div class="col-md-6">
+              <select
+                id="medicineDropdown"
+                class="form-select py-3"
+                name="medicine"
+                disabled
+              >
+                <option selected>Choose a medicine</option>
+              </select>
             </div>
           </div>
           <div
@@ -72,6 +75,49 @@
       </form>
     </div>
 
+    <!-- New container for displaying selected details -->
+    <div id="selectedDetailsContainer" class="mt-4"></div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="medicineModal" tabindex="-1" aria-labelledby="medicineModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="medicineModalLabel">Medicine Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p id="selectedMedicine"></p>
+            <div class="mb-3">
+              <label for="timesPerDay" class="form-label">How many times a day?</label>
+              <select class="form-select" id="timesPerDay">
+                <option selected>Choose an option</option>
+                <option value="1">Once a day</option>
+                <option value="2">Twice a day</option>
+                <option value="3">Three times a day</option>
+                <option value="4">Four times a day</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="whenToTake" class="form-label">When?</label>
+              <select class="form-select" id="whenToTake">
+                <option selected>Choose an option</option>
+                <option value="before_meals">Before meals</option>
+                <option value="after_meals">After meals</option>
+                <option value="with_meals">With meals</option>
+                <option value="before_bed">Before bed</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="confirmSelection">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script>
       let inputData = {};
       <% if (input1) { %>
@@ -79,8 +125,8 @@
       <% } %>
       console.log('inputData:', inputData);
 
-      function populateDropdown() {
-          const dropdown = document.getElementById('dynamicDropdown');
+      function populateDiseaseDropdown() {
+          const dropdown = document.getElementById('diseaseDropdown');
           const complaints = Object.keys(inputData);
 
           for (const complaint of complaints) {
@@ -96,17 +142,20 @@
           dropdown.appendChild(otherOption);
       }
 
-      function updateCheckboxes() {
-          const dropdown = document.getElementById('dynamicDropdown');
-          const checkboxContainer = document.getElementById('dynamicCheckboxContainer');
+      function updateMedicineDropdown() {
+          const diseaseDropdown = document.getElementById('diseaseDropdown');
+          const medicineDropdown = document.getElementById('medicineDropdown');
           const otherDiseaseContainer = document.getElementById('otherDiseaseContainer');
           const otherDiseaseInputContainer = document.getElementById('otherDiseaseInputContainer');
-          checkboxContainer.innerHTML = ''; // Clear the container first
-          otherDiseaseInputContainer.innerHTML = ''; // Clear the container first
+          
+          medicineDropdown.innerHTML = '<option selected>Choose a medicine</option>'; // Reset medicine dropdown
+          otherDiseaseInputContainer.innerHTML = ''; // Clear the container
 
-          const selectedOption = dropdown.options[dropdown.selectedIndex].value;
-          if (selectedOption === 'Other') {
+          const selectedDisease = diseaseDropdown.value;
+          if (selectedDisease === 'Other') {
               otherDiseaseContainer.style.display = 'flex';
+              medicineDropdown.disabled = true;
+              
               const inputContainer = document.createElement('div');
               inputContainer.className = 'row';
 
@@ -129,32 +178,28 @@
               inputContainer.appendChild(medicineInputContainer);
 
               otherDiseaseInputContainer.appendChild(inputContainer);
-          } else {
+          } else if (selectedDisease !== 'Choose a disease') {
               otherDiseaseContainer.style.display = 'none';
-              if (selectedOption && inputData[selectedOption]) {
-                  const medicines = inputData[selectedOption];
+              medicineDropdown.disabled = false;
+              if (selectedDisease && inputData[selectedDisease]) {
+                  const medicines = inputData[selectedDisease];
                   medicines.forEach(medicine => {
-                      const checkboxElement = document.createElement('div');
-                      checkboxElement.classList.add('form-check');
-
-                      const inputElement = document.createElement('input');
-                      inputElement.type = 'checkbox';
-                      inputElement.id = `medicine-${medicine}`;
-                      inputElement.name = 'medicines';
-                      inputElement.value = medicine;
-                      inputElement.classList.add('form-check-input');
-
-                      const labelElement = document.createElement('label');
-                      labelElement.htmlFor = `medicine-${medicine}`;
-                      labelElement.textContent = medicine;
-                      labelElement.classList.add('form-check-label');
-
-                      checkboxElement.appendChild(inputElement);
-                      checkboxElement.appendChild(labelElement);
-                      checkboxContainer.appendChild(checkboxElement);
+                      const option = document.createElement('option');
+                      option.value = medicine;
+                      option.textContent = medicine;
+                      medicineDropdown.appendChild(option);
                   });
               }
+          } else {
+              medicineDropdown.disabled = true;
           }
+      }
+
+      function showModal() {
+          const medicineName = document.getElementById('medicineDropdown').value;
+          document.getElementById('selectedMedicine').textContent = `Selected medicine: ${medicineName}`;
+          const modal = new bootstrap.Modal(document.getElementById('medicineModal'));
+          modal.show();
       }
 
       function addNewMedicineInput(event) {
@@ -182,10 +227,41 @@
           }
       }
 
+      document.getElementById('confirmSelection').addEventListener('click', function() {
+          const timesPerDay = document.getElementById('timesPerDay');
+          const whenToTake = document.getElementById('whenToTake');
+          const selectedMedicine = document.getElementById('selectedMedicine').textContent.split(': ')[1];
+          
+          // Create a string with the selected details
+          const details = `Medicine: ${selectedMedicine}, Times per day: ${timesPerDay.value}, When to take: ${whenToTake.value}`;
+          
+          // Display the details in the container
+          const detailsContainer = document.getElementById('selectedDetailsContainer');
+          const detailElement = document.createElement('p');
+          detailElement.textContent = details;
+          detailsContainer.appendChild(detailElement);
+          
+          // Close the modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('medicineModal'));
+          modal.hide();
+          
+          // Reset the medicine dropdown and modal selections
+          document.getElementById('medicineDropdown').value = 'Choose a medicine';
+          timesPerDay.value = 'Choose an option';
+          whenToTake.value = 'Choose an option';
+      });
+
       window.onload = function() {
-          populateDropdown();
-          const dropdown = document.getElementById('dynamicDropdown');
-          dropdown.addEventListener('change', updateCheckboxes);
+          populateDiseaseDropdown();
+          const diseaseDropdown = document.getElementById('diseaseDropdown');
+          diseaseDropdown.addEventListener('change', updateMedicineDropdown);
+          
+          const medicineDropdown = document.getElementById('medicineDropdown');
+          medicineDropdown.addEventListener('change', function() {
+              if (this.value !== 'Choose a medicine') {
+                  showModal();
+              }
+          });
       };
     </script>
   </body>
